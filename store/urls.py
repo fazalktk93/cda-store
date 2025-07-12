@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 from .views import OfficeListView, OfficeCreateView, report_view
 from .views import report_search    
-from .views import report_form_view
+from .views import report_view
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
