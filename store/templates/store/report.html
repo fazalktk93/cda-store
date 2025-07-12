@@ -1,5 +1,10 @@
-<h2>Search & Export Report</h2>
-<form method="get" class="row g-3 mb-3">
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<h2 class="mt-4">Search & Export Report</h2>
+
+<form method="get" class="row g-3 mb-4">
     <div class="col-md-4">
         {{ form.query }}
     </div>
@@ -13,3 +18,34 @@
         <button type="submit" class="btn btn-primary w-100">Search</button>
     </div>
 </form>
+
+<a href="?export=pdf" class="btn btn-success mb-3">Export PDF</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Vendor</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Issued Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for issue in issues %}
+        <tr>
+            <td>{{ issue.stock_item.name }}</td>
+            <td>{{ issue.stock_item.vendor.name }}</td>
+            <td>{{ issue.stock_item.unit }}</td>
+            <td>{{ issue.stock_item.purchase_price }}</td>
+            <td>{{ issue.quantity_issued }}</td>
+            <td>{{ issue.date_issued }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No records found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

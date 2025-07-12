@@ -26,6 +26,15 @@ class OfficeForm(forms.ModelForm):
         fields = ['name', 'location']
         
 class ReportSearchForm(forms.Form):
-    query = forms.CharField(required=False, label='Search by name or vendor')
-    start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
-    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    query = forms.CharField(required=False, label='', widget=forms.TextInput(attrs={
+        'placeholder': 'Search by name or vendor',
+        'class': 'form-control'
+    }))
+    start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={
+        'type': 'date',
+        'class': 'form-control'
+    }))
+    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={
+        'type': 'date',
+        'class': 'form-control'
+    }))
