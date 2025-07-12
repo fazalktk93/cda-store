@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 4px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>Filtered Stock Report</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Vendor</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Qty</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.vendor.name }}</td>
+                <td>{{ item.unit }}</td>
+                <td>{{ item.purchase_price }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

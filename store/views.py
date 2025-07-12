@@ -65,21 +65,19 @@ def issue_create(request):
 @login_required
 def report_pdf(request):
     query = request.GET.get('q', '')
-    
     items = StockItem.objects.all()
     if query:
         items = items.filter(
-            Q(name__icontains=query) | 
+            Q(name__icontains=query) |
             Q(vendor__name__icontains=query)
         )
 
-    template = get_template('store/report.html')
-    html = template.render({'items': items, 'query': query})
-    
+    template = get_template('store/report_pdf.html')  # separate PDF-only layout
+    html = template.render({'items': items})
     buffer = io.BytesIO()
     pisa.CreatePDF(html, dest=buffer)
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename='report.pdf')
+    return FileResponse(buffer, as_attachment=True, filename='filtered_report.pdf')
 
 @login_required
 def report_search(request):

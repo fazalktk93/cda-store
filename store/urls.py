@@ -13,4 +13,5 @@ urlpatterns = [
     path('offices/', OfficeListView.as_view(), name='office_list'),
     path('offices/add/', OfficeCreateView.as_view(), name='office_add'),
     path('report/', views.report_search, name='report_search'),
+    path('report/pdf/', views.report_pdf, name='report_pdf'),
 ]
