@@ -1,0 +1,35 @@
+{% extends "store/base.html" %}
+{% block content %}
+<h2>{{ article.name }}</h2>
+
+<h3>Receipts</h3>
+<table border="1">
+    <tr>
+        <th>Date</th><th>Voucher</th><th>From</th><th>Qty</th><th>Unit</th><th>Price</th><th>Total</th>
+    </tr>
+    {% for r in receipts %}
+    <tr>
+        <td>{{ r.date }}</td><td>{{ r.voucher_no }}</td><td>{{ r.from_whom_purchased }}</td>
+        <td>{{ r.quantity }}</td><td>{{ r.unit }}</td><td>{{ r.price_per_unit }}</td>
+        <td>{{ r.total_price }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No receipts found.</td></tr>
+    {% endfor %}
+</table>
+
+<h3>Issues</h3>
+<table border="1">
+    <tr>
+        <th>Date</th><th>Qty</th><th>To</th><th>Remarks</th><th>Signature</th>
+    </tr>
+    {% for i in issues %}
+    <tr>
+        <td>{{ i.date }}</td><td>{{ i.quantity_issued }}</td><td>{{ i.to_whom_issued }}</td>
+        <td>{{ i.remarks }}</td><td>{{ i.signature }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No issues found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}
