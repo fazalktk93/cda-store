@@ -8,7 +8,8 @@ from django.views.generic import ListView, CreateView
 from django.urls import reverse_lazy
 
 from .models import Vendor, StockItem, Issue, Receipt, Office
-from .forms import OfficeForm, VendorForm, StockItemForm, IssueForm
+from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm
+
 
 # Dashboard
 @login_required
@@ -18,6 +19,7 @@ def dashboard(request):
         'stock_count': StockItem.objects.count(),
         'issue_count': Issue.objects.count()
     })
+
 
 # Vendor CRUD
 @login_required
@@ -33,6 +35,7 @@ def vendor_create(request):
         return redirect('vendor_list')
     return render(request, 'store/vendor_form.html', {'form': form})
 
+
 # Stock CRUD
 @login_required
 def stock_list(request):
@@ -47,6 +50,7 @@ def stock_create(request):
         return redirect('stock_list')
     return render(request, 'store/stock_form.html', {'form': form})
 
+
 # Issue Entry
 @login_required
 def issue_create(request):
@@ -55,6 +59,7 @@ def issue_create(request):
         form.save()
         return redirect('stock_list')
     return render(request, 'store/issue_form.html', {'form': form})
+
 
 # PDF Report
 @login_required
@@ -66,14 +71,22 @@ def report_pdf(request):
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename='report.pdf')
 
-# Office Management Views
+
+# ✅ Office Management Views
 class OfficeListView(ListView):
     model = Office
     template_name = 'store/office_list.html'
 
+
 class OfficeCreateView(CreateView):
     model = Office
-    fields = ['name', 'location']
+    form_class = OfficeForm  # ✅ Use only form_class to avoid conflict
     template_name = 'store/office_form.html'
     success_url = reverse_lazy('office_list')
-    form_class = OfficeForm
+@login_required
+def office_create(request):
+    form = OfficeForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('office_list')
+    return render(request, 'store/office_form.html', {'form': form})
