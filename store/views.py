@@ -215,3 +215,17 @@ def office_create(request):
 @login_required
 def report_form_view(request):
     return render(request, 'store/report_form.html')
+
+@login_required
+class IssueCreateView(CreateView):
+    model = Issue
+    form_class = IssueForm
+    template_name = 'store/issue_form.html'
+    success_url = '/stock/issue/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        stock_data = {item.id: item.quantity for item in StockItem.objects.all()}
+        context['stock_data_json'] = json.dumps(stock_data)
+        context['issued_items'] = Issue.objects.select_related('stock_item', 'office').order_by('-date_issued')[:5]  # latest 5
+        return context

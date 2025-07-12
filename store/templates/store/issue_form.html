@@ -51,3 +51,29 @@
     });
 </script>
 {% endblock %}
+{% if issued_items %}
+<hr>
+<h4>Recently Issued Items</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Stock Item</th>
+            <th>Office</th>
+            <th>Quantity</th>
+            <th>Date Issued</th>
+            <th>Remarks</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for issue in issued_items %}
+        <tr>
+            <td>{{ issue.stock_item.name }}</td>
+            <td>{{ issue.office.name }}</td>
+            <td>{{ issue.quantity_issued }}</td>
+            <td>{{ issue.date_issued }}</td>
+            <td>{{ issue.remarks }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
