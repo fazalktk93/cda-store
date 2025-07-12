@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Article, Receipt, Issue
 
 # Dashboard view (home)
-def home(request):
+def dashboard(request):
     return render(request, 'store/dashboard.html')
 
 # List all articles
