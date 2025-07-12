@@ -1,34 +1,71 @@
-<form method="get">
-    <div class="row mb-3">
-        <div class="col-md-4">
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Report{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Search & Export Report</h2>
+
+    <form method="get" class="mb-4">
+        <div class="mb-3">
             <input type="text" name="q" placeholder="Search item name" class="form-control" value="{{ request.GET.q }}">
         </div>
-        <div class="col-md-3">
-            <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+        <div class="mb-3 row">
+            <div class="col">
+                <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+            </div>
+            <div class="col">
+                <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+            </div>
         </div>
-        <div class="col-md-3">
-            <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" name="include_issues" {% if request.GET.include_issues %}checked{% endif %}>
+            <label class="form-check-label">Include Issues</label><br>
+            <input type="checkbox" class="form-check-input" name="include_purchases" {% if request.GET.include_purchases %}checked{% endif %}>
+            <label class="form-check-label">Include Purchases</label><br>
+            <input type="checkbox" class="form-check-input" name="show_vendor" {% if request.GET.show_vendor %}checked{% endif %}>
+            <label class="form-check-label">Show Vendor Info</label><br>
+            <input type="checkbox" class="form-check-input" name="show_office" {% if request.GET.show_office %}checked{% endif %}>
+            <label class="form-check-label">Show Office Info</label>
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
-        </div>
-    </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a href="{% url 'report_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-success ms-2">Export PDF</a>
+    </form>
 
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="include_issues" id="include_issues" {% if request.GET.include_issues %}checked{% endif %}>
-        <label class="form-check-label" for="include_issues">Include Issues</label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="include_receipts" id="include_receipts" {% if request.GET.include_receipts %}checked{% endif %}>
-        <label class="form-check-label" for="include_receipts">Include Purchases</label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="show_vendor" id="show_vendor" {% if request.GET.show_vendor %}checked{% endif %}>
-        <label class="form-check-label" for="show_vendor">Show Vendor Info</label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="show_office" id="show_office" {% if request.GET.show_office %}checked{% endif %}>
-        <label class="form-check-label" for="show_office">Show Office Info</label>
-    </div>
-    <button type="submit" name="export" value="1" class="btn btn-success mt-2">Export PDF</button>
-</form>
+    {% if results %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                {% if show_vendor %}<th>Vendor</th>{% endif %}
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                {% if include_issues or include_purchases %}<th>Date</th>{% endif %}
+                {% if show_office %}<th>Office</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in results %}
+            <tr>
+                <td>{{ item.name }}</td>
+                {% if show_vendor %}<td>{{ item.vendor }}</td>{% endif %}
+                <td>{{ item.unit }}</td>
+                <td>{{ item.purchase_price }}</td>
+                <td>{{ item.quantity }}</td>
+                {% if include_issues or include_purchases %}
+                    <td>{{ item.date|default_if_none:"-" }}</td>
+                {% endif %}
+                {% if show_office %}
+                    <td>{{ item.office|default_if_none:"-" }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No data found.</p>
+    {% endif %}
+</div>
+{% endblock %}
