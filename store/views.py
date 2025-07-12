@@ -58,18 +58,27 @@ def stock_create(request):
 # Issue Entry
 @login_required
 def issue_create(request):
+    from .forms import IssueForm
+    from .models import StockItem
+    from django.core.serializers.json import DjangoJSONEncoder
+    import json
+
     form = IssueForm(request.POST or None)
+    
+    # Get remaining quantity data
+    stock_data = {}
+    for item in StockItem.objects.all():
+        stock_data[item.id] = item.quantity  # Adjust if you use .remaining_quantity or similar
+
+    stock_data_json = json.dumps(stock_data, cls=DjangoJSONEncoder)
+
     if form.is_valid():
         form.save()
         return redirect('stock_list')
-
-    # 👇 Prepare data for the dropdown quantity display
-    stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
-    stock_data_json = json.dumps(stock_data, cls=DjangoJSONEncoder)
-
+    
     return render(request, 'store/issue_form.html', {
         'form': form,
-        'stock_data_json': stock_data_json,  # 👈 pass to template
+        'stock_data_json': stock_data_json
     })
 
 # PDF Report
