@@ -18,10 +18,17 @@ from datetime import datetime
 # Dashboard
 @login_required
 def dashboard(request):
+    vendor_count = Vendor.objects.count()
+    stock_count = StockItem.objects.count()
+    issue_count = Issue.objects.count()
+
+    low_stock_items = StockItem.objects.filter(quantity__lt=40)
+
     return render(request, 'store/dashboard.html', {
-        'vendor_count': Vendor.objects.count(),
-        'stock_count': StockItem.objects.count(),
-        'issue_count': Issue.objects.count()
+        'vendor_count': vendor_count,
+        'stock_count': stock_count,
+        'issue_count': issue_count,
+        'low_stock_items': low_stock_items,
     })
 
 

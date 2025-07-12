@@ -1,8 +1,10 @@
 {% extends "store/base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h2>Dashboard</h2>
-<div class="row">
+
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="row mb-4">
     <div class="col-md-4">
         <div class="alert alert-info text-center">
             <h4>{{ vendor_count }}</h4>
@@ -22,4 +24,31 @@
         </div>
     </div>
 </div>
+
+<h4 class="mt-5">🔻 Low Stock Items (Below 40)</h4>
+<table class="table table-sm table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>Name</th>
+            <th>Vendor</th>
+            <th>Remaining Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in low_stock_items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.vendor.name }}</td>
+            <td class="{% if item.quantity == 0 %}text-danger{% endif %}">
+                {{ item.quantity }}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-muted text-center">All stock levels are healthy.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}
