@@ -83,66 +83,66 @@ def report_pdf(request):
 
 @login_required
 def report_search(request):
-    query = request.GET.get('q', '')
-    start_date = parse_date(request.GET.get('start_date')) if request.GET.get('start_date') else None
-    end_date = parse_date(request.GET.get('end_date')) if request.GET.get('end_date') else None
-    include_issues = 'include_issues' in request.GET
-    include_purchases = 'include_purchases' in request.GET
-    show_vendor = 'show_vendor' in request.GET
-    show_office = 'show_office' in request.GET
-
-    items = StockItem.objects.all()
-    if query:
-        items = items.filter(name__icontains=query)
+    query = request.GET.get("q", "")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+    include_issues = request.GET.get("include_issues") == "on"
+    include_purchases = request.GET.get("include_purchases") == "on"
+    show_vendor = request.GET.get("show_vendor") == "on"
+    show_office = request.GET.get("show_office") == "on"
 
     results = []
+
+    items = StockItem.objects.filter(name__icontains=query)
 
     for item in items:
         row = {
             'name': item.name,
-            'vendor': item.vendor.name if show_vendor else '',
             'unit': item.unit,
-            'purchase_price': item.purchase_price,
+            'price': item.purchase_price,
             'quantity': item.quantity,
-            'date': '',
-            'office': ''
         }
 
-        if include_issues:
-            issues = Issue.objects.filter(stock_item=item)
-            if start_date:
-                issues = issues.filter(date_issued__gte=start_date)
-            if end_date:
-                issues = issues.filter(date_issued__lte=end_date)
+        if show_vendor and item.vendor:
+            row['vendor'] = item.vendor.name
+        else:
+            row['vendor'] = ''
 
-            latest_issue = issues.order_by('-date_issued').first()
-            if latest_issue:
-                row['date'] = latest_issue.date_issued
-                if show_office:
-                    row['office'] = latest_issue.office.name
-
-        elif include_purchases:
-            receipts = Receipt.objects.filter(stock_item=item)
+        if include_purchases:
+            receipts = item.receipt_set.all()
             if start_date:
                 receipts = receipts.filter(date_received__gte=start_date)
             if end_date:
                 receipts = receipts.filter(date_received__lte=end_date)
+            for receipt in receipts:
+                row_copy = row.copy()
+                row_copy['quantity'] = receipt.quantity_received
+                row_copy['date'] = receipt.date_received
+                row_copy['type'] = 'Purchase'
+                row_copy['office'] = ''
+                results.append(row_copy)
 
-            latest_receipt = receipts.order_by('-date_received').first()
-            if latest_receipt:
-                row['date'] = latest_receipt.date_received
+        if include_issues:
+            issues = item.issue_set.all()
+            if start_date:
+                issues = issues.filter(date_issued__gte=start_date)
+            if end_date:
+                issues = issues.filter(date_issued__lte=end_date)
+            for issue in issues:
+                row_copy = row.copy()
+                row_copy['quantity'] = issue.quantity_issued
+                row_copy['date'] = issue.date_issued
+                row_copy['type'] = 'Issue'
+                if show_office and issue.office:
+                    row_copy['office'] = issue.office.name
+                else:
+                    row_copy['office'] = ''
+                results.append(row_copy)
 
-        results.append(row)
-
-    return render(request, 'store/report_search.html', {
+    return render(request, 'store/report_result.html', {
         'results': results,
-        'query': query,
-        'start_date': request.GET.get('start_date', ''),
-        'end_date': request.GET.get('end_date', ''),
-        'include_issues': include_issues,
-        'include_purchases': include_purchases,
         'show_vendor': show_vendor,
-        'show_office': show_office,
+        'show_office': show_office
     })
 
 @login_required
