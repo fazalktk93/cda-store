@@ -1,0 +1,41 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Search & Export Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Search & Export Report</h2>
+    <form method="get" action="{% url 'report_search' %}">
+        <div class="row mb-3">
+            <div class="col">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" id="start_date" name="start_date" class="form-control">
+            </div>
+            <div class="col">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" id="end_date" name="end_date" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="include_issues" id="include_issues" checked>
+            <label class="form-check-label" for="include_issues">Include Issues</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="include_purchases" id="include_purchases" checked>
+            <label class="form-check-label" for="include_purchases">Include Purchases</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="show_vendor" id="show_vendor" checked>
+            <label class="form-check-label" for="show_vendor">Show Vendor Info</label>
+        </div>
+        <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" name="show_office" id="show_office" checked>
+            <label class="form-check-label" for="show_office">Show Office Info</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search Report</button>
+    </form>
+</div>
+{% endblock %}
