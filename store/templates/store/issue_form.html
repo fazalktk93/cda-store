@@ -7,6 +7,11 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+
+        <div id="remaining-container" style="margin-top:10px;">
+            <label id="remainingQtyLabel" style="font-weight: bold;"></label>
+        </div>
+
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>
@@ -15,13 +20,10 @@
 {% block extra_js %}
 <script>
     const stockData = {{ stock_data_json|safe }};
+
     document.addEventListener('DOMContentLoaded', function () {
         const select = document.getElementById('id_stock_item');
-        const label = document.createElement('span');
-        label.style.marginLeft = '10px';
-        label.style.fontWeight = 'bold';
-        label.id = 'remainingQtyLabel';
-        select.parentNode.appendChild(label);
+        const label = document.getElementById('remainingQtyLabel');
 
         function updateLabel() {
             const selectedId = select.value;
@@ -29,8 +31,12 @@
             label.textContent = remaining !== undefined ? `Remaining: ${remaining}` : '';
         }
 
-        select.addEventListener('change', updateLabel);
-        updateLabel();
+        if (select && label) {
+            select.addEventListener('change', updateLabel);
+            updateLabel(); // initialize
+        } else {
+            console.error("Dropdown or label not found.");
+        }
     });
 </script>
 {% endblock %}
