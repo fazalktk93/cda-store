@@ -20,7 +20,8 @@ class IssueForm(forms.ModelForm):
             'date_issued': forms.DateInput(attrs={'type': 'date'})
         }
         
-class OfficeForm(forms.ModelForm):
-    class Meta:
-        model = Office
-        fields = ['name', 'location']
+class OfficeCreateView(CreateView):
+    model = Office
+    form_class = OfficeForm  # ✅ only use this
+    template_name = 'store/office_form.html'
+    success_url = reverse_lazy('office_list')
