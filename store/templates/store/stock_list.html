@@ -2,7 +2,7 @@
 {% block title %}Stock List{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">Current Stock</h2>
+    <h2 class="mb-4 text-center">Purchased Stock</h2>
 
     <div class="text-end mb-3">
         <a href="{% url 'stock_create' %}" class="btn btn-primary">+ Add Stock Item</a>
@@ -14,9 +14,8 @@
                 <th>Name</th>
                 <th>Vendor</th>
                 <th>Unit (e.g., pcs, kg)</th>
-                <th>Quantity in Stock</th>
-                <th>Last Purchase Price</th>
-                <th>Last Purchase Date</th>
+                <th>Total Price</th>
+                <th>Purchase Date</th>
             </tr>
         </thead>
         <tbody>
@@ -25,10 +24,10 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.vendor.name }}</td>
                 <td>{{ item.unit }}</td>
-                <td>{{ item.quantity }}</td>
                 <td>
                     {% with item.receipt_set.last as last_receipt %}
-                        {{ last_receipt.unit_price|default:"N/A" }}
+                        {{ last_receipt.unit_price|default:"-" }} × {{ last_receipt.quantity_received|default:"-" }} = 
+                        {{ last_receipt.total_price|default:"N/A" }}
                     {% endwith %}
                 </td>
                 <td>
@@ -39,7 +38,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-muted">No stock items available.</td>
+                <td colspan="5" class="text-muted">No stock purchases found.</td>
             </tr>
             {% endfor %}
         </tbody>
