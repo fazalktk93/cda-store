@@ -1,34 +1,75 @@
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+{% extends 'store/base.html' %}
+{% load static %}
 
-    <label id="stock-remaining-label" class="form-text text-muted" style="display:none;">
-        Remaining Quantity: <span id="stock-remaining"></span>
-    </label>
+{% block title %}Issue Stock{% endblock %}
 
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Issue Stock</h2>
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
 
+        <div class="mb-3 row align-items-center">
+            <label class="col-sm-2 col-form-label">Stock Item</label>
+            <div class="col-sm-6">
+                {{ form.stock_item }}
+            </div>
+            <div class="col-sm-4">
+                <span id="stock-remaining-label" class="text-muted" style="display: none;">
+                    Remaining: <strong id="stock-remaining"></strong>
+                </span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form.office.label_tag }}<br>
+            {{ form.office }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.quantity_issued.label_tag }}<br>
+            {{ form.quantity_issued }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.date_issued.label_tag }}<br>
+            {{ form.date_issued }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.remarks.label_tag }}<br>
+            {{ form.remarks }}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Save</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const stockSelect = document.querySelector('#id_stock_item');
         const stockLabel = document.getElementById('stock-remaining-label');
         const stockQtySpan = document.getElementById('stock-remaining');
 
-        // This would be populated by Django context in real use
+        // This dictionary should be passed from the view as context
         const stockData = {{ stock_data_json|safe }};
 
         function updateStockInfo() {
             const selectedId = stockSelect.value;
             if (selectedId && stockData[selectedId]) {
                 stockQtySpan.textContent = stockData[selectedId];
-                stockLabel.style.display = 'block';
+                stockLabel.style.display = 'inline-block';
             } else {
                 stockLabel.style.display = 'none';
             }
         }
 
-        stockSelect.addEventListener('change', updateStockInfo);
-        updateStockInfo();  // on load
+        if (stockSelect) {
+            stockSelect.addEventListener('change', updateStockInfo);
+            updateStockInfo();  // Call on page load
+        }
     });
 </script>
+{% endblock %}

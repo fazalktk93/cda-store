@@ -63,13 +63,14 @@ def issue_create(request):
         form.save()
         return redirect('stock_list')
 
+    # Stock quantities for JS
     stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
-    context = {
-        'form': form,
-        'stock_data_json': json.dumps(stock_data, cls=DjangoJSONEncoder)
-    }
-    return render(request, 'store/issue_form.html', context)
+    stock_data_json = json.dumps(stock_data, cls=DjangoJSONEncoder)
 
+    return render(request, 'store/issue_form.html', {
+        'form': form,
+        'stock_data_json': stock_data_json
+    })
 
 # PDF Report
 @login_required
