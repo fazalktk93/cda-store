@@ -81,7 +81,21 @@ def report_pdf(request):
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename='report.pdf')
 
+@login_required
+def report_search(request):
+    query = request.GET.get('q', '')
+    items = StockItem.objects.all()
 
+    if query:
+        items = items.filter(
+            Q(name__icontains=query) |
+            Q(vendor__name__icontains=query)
+        )
+
+    return render(request, 'store/report_search.html', {
+        'items': items,
+        'query': query
+    })
 
 # ✅ Office Management Views
 class OfficeListView(ListView):
