@@ -3,28 +3,32 @@
 {% block content %}
 <h2>Stock Items</h2>
 <a href="{% url 'stock_create' %}" class="btn btn-primary mb-3">Add Stock Item</a>
-<table class="table table-bordered">
-<thead>
-    <tr>
-    <th>Name</th>
-    <th>Vendor</th>
-    <th>Unit</th>
-    <th>Purchase Price</th>
-    <th>Quantity</th>
-    </tr>
-</thead>
-<tbody>
-    {% for item in items %}
-    <tr>
-    <td>{{ item.name }}</td>
-    <td>{{ item.vendor.name }}</td>
-    <td>{{ item.unit }}</td>
-    <td>{{ item.purchase_price }}</td>
-    <td>{{ item.quantity }}</td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="5">No items found.</td></tr>
-    {% endfor %}
-</tbody>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Vendor</th>
+            <th>Unit</th>
+            <th>Price</th>
+            <th>Available Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.vendor.name }}</td>
+            <td>{{ item.unit }}</td>
+            <td>{{ item.purchase_price }}</td>
+            <td>{{ item.quantity }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No stock items available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+<a href="{% url 'report_search' %}" class="btn btn-secondary mt-3">Search & Export Report</a>
+</div>
 {% endblock %}

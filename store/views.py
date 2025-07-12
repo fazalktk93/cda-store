@@ -66,17 +66,15 @@ def issue_create(request):
         stock_item = issue.stock_item
         quantity_issued = issue.quantity_issued
 
-        # Decrease the stock quantity
         if stock_item.quantity >= quantity_issued:
             stock_item.quantity -= quantity_issued
             stock_item.save()
             issue.save()
-            form = IssueForm()  # Reset form after saving
+            form = IssueForm()  # Clear the form
         else:
-            form.add_error('quantity_issued', 'Not enough stock available.')
+            form.add_error('quantity_issued', 'Not enough quantity in stock.')
 
     recent_issues = Issue.objects.order_by('-date_issued')[:5]
-
     return render(request, 'store/issue_form.html', {
         'form': form,
         'stock_data_json': json.dumps(stock_data),
