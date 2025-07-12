@@ -26,7 +26,7 @@ class StockItem(models.Model):
 
 class Issue(models.Model):
     stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
-    office = models.ForeignKey(Office, on_delete=models.CASCADE)
+    office = models.ForeignKey(Office, on_delete=models.SET_NULL, null=True, blank=True)
     quantity_issued = models.PositiveIntegerField()
     remarks = models.TextField(blank=True)
     date_issued = models.DateField(auto_now_add=False, auto_now=False)
