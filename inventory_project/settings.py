@@ -89,6 +89,6 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Static files (ensure this is defined for PDF export)
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+#STATICFILES_DIRS = [
+#    os.path.join(BASE_DIR, 'static'),
+#]
