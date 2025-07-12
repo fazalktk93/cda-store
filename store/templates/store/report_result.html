@@ -1,0 +1,60 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}Report Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Report Results</h2>
+
+    {% if not issues and not receipts %}
+        <p>No data found for the selected filters.</p>
+    {% else %}
+        <table class="table table-bordered table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    {% if show_vendor %}<th>Vendor</th>{% endif %}
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Date</th>
+                    {% if show_office %}<th>Office</th>{% endif %}
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in receipts %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ record.stock_item.name }}</td>
+                    {% if show_vendor %}<td>{{ record.stock_item.vendor.name }}</td>{% endif %}
+                    <td>{{ record.stock_item.unit }}</td>
+                    <td>{{ record.stock_item.purchase_price }}</td>
+                    <td>{{ record.quantity_received }}</td>
+                    <td>{{ record.date_received }}</td>
+                    {% if show_office %}<td>-</td>{% endif %}
+                    <td>Purchase</td>
+                </tr>
+                {% endfor %}
+
+                {% for record in issues %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ record.stock_item.name }}</td>
+                    {% if show_vendor %}<td>{{ record.stock_item.vendor.name }}</td>{% endif %}
+                    <td>{{ record.stock_item.unit }}</td>
+                    <td>{{ record.stock_item.purchase_price }}</td>
+                    <td>{{ record.quantity_issued }}</td>
+                    <td>{{ record.date_issued }}</td>
+                    {% if show_office %}<td>{{ record.office.name }}</td>{% endif %}
+                    <td>Issued</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <a href="{% url 'report' %}" class="btn btn-secondary">Back to Report Filters</a>
+</div>
+{% endblock %}
