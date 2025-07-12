@@ -81,3 +81,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 #
+# Redirect after login/logout
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Default auto field type (optional but removes warnings)
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Static files (ensure this is defined for PDF export)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]

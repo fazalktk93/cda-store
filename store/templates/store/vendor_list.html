@@ -1,0 +1,21 @@
+{% extends "store/base.html" %}
+{% block title %}Vendors{% endblock %}
+{% block content %}
+<h2>Vendors</h2>
+<a href="{% url 'vendor_create' %}" class="btn btn-primary mb-3">Add Vendor</a>
+<table class="table table-striped">
+<thead>
+    <tr><th>Name</th><th>Contact</th></tr>
+</thead>
+<tbody>
+    {% for vendor in vendors %}
+    <tr>
+    <td>{{ vendor.name }}</td>
+    <td>{{ vendor.contact }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">No vendors added yet.</td></tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1,60 +1,25 @@
 {% extends "store/base.html" %}
-
 {% block title %}Dashboard{% endblock %}
-{% block page_title %}Inventory Dashboard{% endblock %}
-
 {% block content %}
+<h2>Dashboard</h2>
 <div class="row">
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-info">
-            <div class="inner">
-                <h3>150</h3>
-                <p>Total Articles</p>
-            </div>
-            <div class="icon"><i class="fas fa-box"></i></div>
+    <div class="col-md-4">
+        <div class="alert alert-info text-center">
+            <h4>{{ vendor_count }}</h4>
+            <p>Vendors</p>
         </div>
     </div>
-
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3>53<sup style="font-size: 20px">%</sup></h3>
-                <p>In Stock</p>
-            </div>
-            <div class="icon"><i class="fas fa-check-circle"></i></div>
+    <div class="col-md-4">
+        <div class="alert alert-success text-center">
+            <h4>{{ stock_count }}</h4>
+            <p>Stock Items</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-warning text-center">
+            <h4>{{ issue_count }}</h4>
+            <p>Items Issued</p>
         </div>
     </div>
 </div>
-
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Inventory Overview</h3>
-    </div>
-    <div class="card-body">
-        <canvas id="inventoryChart" style="height: 250px;"></canvas>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    const ctx = document.getElementById('inventoryChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Received',
-                data: [12, 19, 3, 5, 2, 3, 9],
-                borderColor: 'blue',
-                fill: false
-            }, {
-                label: 'Issued',
-                data: [2, 3, 20, 5, 1, 4, 11],
-                borderColor: 'green',
-                fill: false
-            }]
-        },
-    });
-</script>
 {% endblock %}

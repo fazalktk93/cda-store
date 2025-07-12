@@ -1,22 +1,60 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Article, Receipt, Issue
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import FileResponse
+from django.template.loader import get_template
+import io
+from xhtml2pdf import pisa
 
-# Dashboard view (home)
+from .models import Vendor, StockItem, Issue, Receipt
+from .forms import VendorForm, StockItemForm, IssueForm
+
+@login_required
 def dashboard(request):
-    return render(request, 'store/dashboard.html')
-
-# List all articles
-def article_list(request):
-    articles = Article.objects.all()
-    return render(request, 'store/article_list.html', {'articles': articles})
-
-# View a single article and its records
-def article_detail(request, pk):
-    article = get_object_or_404(Article, pk=pk)
-    receipts = Receipt.objects.filter(article=article)
-    issues = Issue.objects.filter(article=article)
-    return render(request, 'store/article_detail.html', {
-        'article': article,
-        'receipts': receipts,
-        'issues': issues,
+    return render(request, 'store/dashboard.html', {
+        'vendor_count': Vendor.objects.count(),
+        'stock_count': StockItem.objects.count(),
+        'issue_count': Issue.objects.count()
     })
+
+@login_required
+def vendor_list(request):
+    vendors = Vendor.objects.all()
+    return render(request, 'store/vendor_list.html', {'vendors': vendors})
+
+@login_required
+def vendor_create(request):
+    form = VendorForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('vendor_list')
+    return render(request, 'store/vendor_form.html', {'form': form})
+
+@login_required
+def stock_list(request):
+    items = StockItem.objects.all()
+    return render(request, 'store/stock_list.html', {'items': items})
+
+@login_required
+def stock_create(request):
+    form = StockItemForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('stock_list')
+    return render(request, 'store/stock_form.html', {'form': form})
+
+@login_required
+def issue_create(request):
+    form = IssueForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('stock_list')
+    return render(request, 'store/issue_form.html', {'form': form})
+
+@login_required
+def report_pdf(request):
+    template = get_template('store/report.html')
+    html = template.render({'items': StockItem.objects.all()})
+    buffer = io.BytesIO()
+    pisa.CreatePDF(html, dest=buffer)
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename='report.pdf')
