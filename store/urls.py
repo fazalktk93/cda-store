@@ -16,7 +16,7 @@ urlpatterns = [
     path('offices/', OfficeListView.as_view(), name='office_list'),
     path('offices/add/', OfficeCreateView.as_view(), name='office_add'),
     path('report/', report_view, name='report_view'),
-    path('report/form/', report_form_view, name='report_form'),
+    path('report/form/', report_view, name='report_form'),
     path('report/pdf/', views.report_pdf, name='report_pdf'),
     path('report/search/', report_search, name='report_search'),
     path('accounts/', include('django.contrib.auth.urls')),  # login/logout
