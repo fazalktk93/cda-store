@@ -19,13 +19,18 @@
         const select = document.getElementById('id_stock_item');
         const label = document.createElement('span');
         label.style.marginLeft = '10px';
+        label.style.fontWeight = 'bold';
+        label.id = 'remainingQtyLabel';
         select.parentNode.appendChild(label);
 
-        select.addEventListener('change', function () {
-            const itemId = this.value;
-            const qty = stockData[itemId];
-            label.innerText = qty !== undefined ? `Remaining: ${qty}` : '';
-        });
+        function updateLabel() {
+            const selectedId = select.value;
+            const remaining = stockData[selectedId];
+            label.textContent = remaining !== undefined ? `Remaining: ${remaining}` : '';
+        }
+
+        select.addEventListener('change', updateLabel);
+        updateLabel();
     });
 </script>
 {% endblock %}
