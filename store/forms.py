@@ -19,3 +19,8 @@ class IssueForm(forms.ModelForm):
         widgets = {
             'date_issued': forms.DateInput(attrs={'type': 'date'})
         }
+        
+class OfficeForm(forms.ModelForm):
+    class Meta:
+        model = Office
+        fields = ['name', 'location']
