@@ -57,29 +57,23 @@ def stock_create(request):
 
 # Issue Entry
 @login_required
-def issue_create(request):
-    form = IssueForm(request.POST or None)
-    stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
+def issue_item(request):
+    if request.method == 'POST':
+        # your existing issue creation logic here
+        item_id = request.POST.get('item_id')  # or however you're capturing the item
+        issued_quantity = int(request.POST.get('quantity'))
 
-    if request.method == 'POST' and form.is_valid():
-        issue = form.save(commit=False)
-        stock_item = issue.stock_item
-        quantity_issued = issue.quantity_issued
-
-        if stock_item.quantity >= quantity_issued:
-            stock_item.quantity -= quantity_issued
+        stock_item = get_object_or_404(Stock, id=item_id)
+        
+        if stock_item.unit >= issued_quantity:
+            stock_item.unit -= issued_quantity
             stock_item.save()
-            issue.save()
-            form = IssueForm()  # Clear the form
+            # proceed to save the issue
         else:
-            form.add_error('quantity_issued', 'Not enough quantity in stock.')
+            # handle the case where issued_quantity is more than available stock
+            messages.error(request, "Not enough stock available.")
 
-    recent_issues = Issue.objects.order_by('-date_issued')[:5]
-    return render(request, 'store/issue_form.html', {
-        'form': form,
-        'stock_data_json': json.dumps(stock_data),
-        'recent_issues': recent_issues
-    })
+        return redirect('some_view')
 
 # PDF Report
 @login_required
