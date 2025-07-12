@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
 from django.template.loader import get_template
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 import io
 from xhtml2pdf import pisa
 from django.views.generic import ListView, CreateView
@@ -60,7 +62,13 @@ def issue_create(request):
     if form.is_valid():
         form.save()
         return redirect('stock_list')
-    return render(request, 'store/issue_form.html', {'form': form})
+
+    stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
+    context = {
+        'form': form,
+        'stock_data_json': json.dumps(stock_data, cls=DjangoJSONEncoder)
+    }
+    return render(request, 'store/issue_form.html', context)
 
 
 # PDF Report
