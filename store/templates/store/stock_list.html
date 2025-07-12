@@ -14,6 +14,8 @@
                 <th>Name</th>
                 <th>Vendor</th>
                 <th>Unit (e.g., pcs, kg)</th>
+                <th>Quantity Purchased</th>
+                <th>Unit Price</th>
                 <th>Total Price</th>
                 <th>Purchase Date</th>
             </tr>
@@ -21,27 +23,43 @@
         <tbody>
             {% for item in items %}
             <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.vendor.name }}</td>
-                <td>{{ item.unit }}</td>
-                <td>
-                    {% with item.receipt_set.last as last_receipt %}
+                {% with item.receipt_set.last as last_receipt %}
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.vendor.name }}</td>
+                    <td>{{ item.unit }}</td>
+                    <td>
                         {% if last_receipt %}
-                            {{ last_receipt.unit_price }} × {{ last_receipt.quantity_received }} = {{ last_receipt.total_price }}
+                            {{ last_receipt.quantity_received }}
                         {% else %}
                             N/A
                         {% endif %}
-                    {% endwith %}
-                </td>
-                <td>
-                    {% with item.receipt_set.last as last_receipt %}
-                        {{ last_receipt.date_received|date:"Y-m-d"|default:"N/A" }}
-                    {% endwith %}
-                </td>
+                    </td>
+                    <td>
+                        {% if last_receipt %}
+                            {{ last_receipt.unit_price }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if last_receipt %}
+                            {{ last_receipt.total_price }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if last_receipt %}
+                            {{ last_receipt.date_received|date:"Y-m-d" }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                {% endwith %}
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="text-muted">No stock purchases found.</td>
+                <td colspan="7" class="text-muted">No stock purchases found.</td>
             </tr>
             {% endfor %}
         </tbody>
