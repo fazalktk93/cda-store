@@ -4,10 +4,13 @@ from django.http import FileResponse
 from django.template.loader import get_template
 import io
 from xhtml2pdf import pisa
+from django.views.generic import ListView, CreateView
+from django.urls import reverse_lazy
 
-from .models import Vendor, StockItem, Issue, Receipt
+from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm
 
+# Dashboard
 @login_required
 def dashboard(request):
     return render(request, 'store/dashboard.html', {
@@ -16,6 +19,7 @@ def dashboard(request):
         'issue_count': Issue.objects.count()
     })
 
+# Vendor CRUD
 @login_required
 def vendor_list(request):
     vendors = Vendor.objects.all()
@@ -29,6 +33,7 @@ def vendor_create(request):
         return redirect('vendor_list')
     return render(request, 'store/vendor_form.html', {'form': form})
 
+# Stock CRUD
 @login_required
 def stock_list(request):
     items = StockItem.objects.all()
@@ -42,6 +47,7 @@ def stock_create(request):
         return redirect('stock_list')
     return render(request, 'store/stock_form.html', {'form': form})
 
+# Issue Entry
 @login_required
 def issue_create(request):
     form = IssueForm(request.POST or None)
@@ -50,6 +56,7 @@ def issue_create(request):
         return redirect('stock_list')
     return render(request, 'store/issue_form.html', {'form': form})
 
+# PDF Report
 @login_required
 def report_pdf(request):
     template = get_template('store/report.html')
@@ -58,3 +65,14 @@ def report_pdf(request):
     pisa.CreatePDF(html, dest=buffer)
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename='report.pdf')
+
+# ✅ Office Management Views
+class OfficeListView(ListView):
+    model = Office
+    template_name = 'store/office_list.html'
+
+class OfficeCreateView(CreateView):
+    model = Office
+    fields = ['name', 'location']
+    template_name = 'store/office_form.html'
+    success_url = reverse_lazy('office_list')

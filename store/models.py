@@ -1,5 +1,12 @@
 from django.db import models
 
+class Office(models.Model):
+    name = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        return self.name
+
 class Vendor(models.Model):
     name = models.CharField(max_length=200)
     contact = models.CharField(max_length=200, blank=True)
@@ -19,13 +26,14 @@ class StockItem(models.Model):
 
 class Issue(models.Model):
     stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
-    to_whom = models.CharField(max_length=200)
+    office = models.ForeignKey(Office, on_delete=models.CASCADE)
     quantity_issued = models.PositiveIntegerField()
     remarks = models.TextField(blank=True)
-    date_issued = models.DateField(auto_now_add=True)
+    date_issued = models.DateField(auto_now_add=False, auto_now=False)
 
     def __str__(self):
-        return f"Issued {self.quantity_issued} of {self.stock_item.name} to {self.to_whom}"
+        return f"Issued {self.quantity_issued} of {self.stock_item.name} to {self.office.name}"
+
 
 class Receipt(models.Model):
     stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)

@@ -1,0 +1,27 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Office List</h2>
+    <a href="{% url 'office_add' %}" class="btn btn-primary mb-3">Add New Office</a>
+    <table class="table table-striped">
+    <thead>
+        <tr>
+        <th>Name</th>
+        <th>Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for office in object_list %}
+        <tr>
+        <td>{{ office.name }}</td>
+        <td>{{ office.location }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+        <td colspan="2">No offices added yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}

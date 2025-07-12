@@ -1,5 +1,6 @@
 from django import forms
 from .models import Vendor, StockItem, Issue
+from .models import Issue, Office
 
 class VendorForm(forms.ModelForm):
     class Meta:
@@ -14,7 +15,7 @@ class StockItemForm(forms.ModelForm):
 class IssueForm(forms.ModelForm):
     class Meta:
         model = Issue
-        fields = ['stock_item', 'to_whom', 'quantity_issued', 'remarks']
+        fields = ['stock_item', 'office', 'quantity_issued', 'remarks', 'date_issued']
         widgets = {
-            'remarks': forms.Textarea(attrs={'rows': 3}),
+            'date_issued': forms.DateInput(attrs={'type': 'date'})
         }
