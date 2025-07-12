@@ -83,35 +83,67 @@ def report_pdf(request):
 
 @login_required
 def report_search(request):
-    query = request.GET.get('q')
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    include_issues = request.GET.get('include_issues')
-    include_purchases = request.GET.get('include_purchases')
-    show_vendor = request.GET.get('show_vendor')
-    show_office = request.GET.get('show_office')
+    query = request.GET.get('q', '')
+    start_date = parse_date(request.GET.get('start_date')) if request.GET.get('start_date') else None
+    end_date = parse_date(request.GET.get('end_date')) if request.GET.get('end_date') else None
+    include_issues = 'include_issues' in request.GET
+    include_purchases = 'include_purchases' in request.GET
+    show_vendor = 'show_vendor' in request.GET
+    show_office = 'show_office' in request.GET
 
-    # Start with all stock items
     items = StockItem.objects.all()
-
-    # Apply filters
     if query:
         items = items.filter(name__icontains=query)
 
-    if start_date:
-        items = items.filter(receipt__date_received__gte=start_date)
+    results = []
 
-    if end_date:
-        items = items.filter(receipt__date_received__lte=end_date)
+    for item in items:
+        row = {
+            'name': item.name,
+            'vendor': item.vendor.name if show_vendor else '',
+            'unit': item.unit,
+            'purchase_price': item.purchase_price,
+            'quantity': item.quantity,
+            'date': '',
+            'office': ''
+        }
 
-    context = {
-        'results': items.distinct(),
+        if include_issues:
+            issues = Issue.objects.filter(stock_item=item)
+            if start_date:
+                issues = issues.filter(date_issued__gte=start_date)
+            if end_date:
+                issues = issues.filter(date_issued__lte=end_date)
+
+            latest_issue = issues.order_by('-date_issued').first()
+            if latest_issue:
+                row['date'] = latest_issue.date_issued
+                if show_office:
+                    row['office'] = latest_issue.office.name
+
+        elif include_purchases:
+            receipts = Receipt.objects.filter(stock_item=item)
+            if start_date:
+                receipts = receipts.filter(date_received__gte=start_date)
+            if end_date:
+                receipts = receipts.filter(date_received__lte=end_date)
+
+            latest_receipt = receipts.order_by('-date_received').first()
+            if latest_receipt:
+                row['date'] = latest_receipt.date_received
+
+        results.append(row)
+
+    return render(request, 'store/report_search.html', {
+        'results': results,
+        'query': query,
+        'start_date': request.GET.get('start_date', ''),
+        'end_date': request.GET.get('end_date', ''),
         'include_issues': include_issues,
         'include_purchases': include_purchases,
         'show_vendor': show_vendor,
         'show_office': show_office,
-    }
-    return render(request, 'store/report.html', context)
+    })
 
 @login_required
 def report_view(request):
