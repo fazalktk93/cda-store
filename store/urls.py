@@ -1,8 +1,13 @@
 from django.urls import path
-from . import views
+from .views import (
+    dashboard, VendorListView, VendorCreateView,
+    StockItemListView, StockItemCreateView
+)
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('articles/', views.article_list, name='article_list'),
-    path('articles/<int:pk>/', views.article_detail, name='article_detail'),
+    path('', dashboard, name='dashboard'),
+    path('vendors/', VendorListView.as_view(), name='vendor_list'),
+    path('vendors/add/', VendorCreateView.as_view(), name='vendor_create'),
+    path('stock/', StockItemListView.as_view(), name='stockitem_list'),
+    path('stock/add/', StockItemCreateView.as_view(), name='stockitem_create'),
 ]
