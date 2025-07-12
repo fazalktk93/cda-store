@@ -26,8 +26,11 @@
                 <td>{{ item.unit }}</td>
                 <td>
                     {% with item.receipt_set.last as last_receipt %}
-                        {{ last_receipt.unit_price|default:"-" }} × {{ last_receipt.quantity_received|default:"-" }} = 
-                        {{ last_receipt.total_price|default:"N/A" }}
+                        {% if last_receipt %}
+                            {{ last_receipt.unit_price }} × {{ last_receipt.quantity_received }} = {{ last_receipt.total_price }}
+                        {% else %}
+                            N/A
+                        {% endif %}
                     {% endwith %}
                 </td>
                 <td>

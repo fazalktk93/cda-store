@@ -47,9 +47,6 @@ class Receipt(models.Model):
     date_received = models.DateField(auto_now_add=True)
     source = models.CharField(max_length=200)
 
-    def __str__(self):
-        return f"Received {self.quantity_received} of {self.stock_item.name} from {self.source}"
-
     @property
     def total_price(self):
         return self.unit_price * self.quantity_received
