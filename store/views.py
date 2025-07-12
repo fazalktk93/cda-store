@@ -83,26 +83,36 @@ def report_pdf(request):
 
 @login_required
 def report_search(request):
-    form = ReportSearchForm(request.GET or None)
-    issues = Issue.objects.all()
+    query = request.GET.get('q')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    include_issues = request.GET.get('include_issues')
+    include_purchases = request.GET.get('include_purchases')
+    show_vendor = request.GET.get('show_vendor')
+    show_office = request.GET.get('show_office')
 
-    if form.is_valid():
-        query = form.cleaned_data.get('query')
-        start_date = form.cleaned_data.get('start_date')
-        end_date = form.cleaned_data.get('end_date')
+    # Start with all stock items
+    items = StockItem.objects.all()
 
-        if query:
-            issues = issues.filter(stock_item__name__icontains=query) | issues.filter(stock_item__vendor__name__icontains=query)
+    # Apply filters
+    if query:
+        items = items.filter(name__icontains=query)
 
-        if start_date:
-            issues = issues.filter(date_issued__gte=start_date)
-        if end_date:
-            issues = issues.filter(date_issued__lte=end_date)
+    if start_date:
+        items = items.filter(receipt__date_received__gte=start_date)
 
-    return render(request, 'store/report.html', {
-        'form': form,
-        'issues': issues
-    })
+    if end_date:
+        items = items.filter(receipt__date_received__lte=end_date)
+
+    context = {
+        'results': items.distinct(),
+        'include_issues': include_issues,
+        'include_purchases': include_purchases,
+        'show_vendor': show_vendor,
+        'show_office': show_office,
+    }
+    return render(request, 'store/report.html', context)
+
 @login_required
 def report_view(request):
     show_vendor = 'show_vendor' in request.GET
