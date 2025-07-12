@@ -24,3 +24,8 @@ class OfficeForm(forms.ModelForm):
     class Meta:
         model = Office
         fields = ['name', 'location']
+        
+class ReportSearchForm(forms.Form):
+    query = forms.CharField(required=False, label='Search by name or vendor')
+    start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))

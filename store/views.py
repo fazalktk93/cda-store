@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm
+from .forms import ReportSearchForm
 
 
 # Dashboard
@@ -81,18 +82,25 @@ def report_pdf(request):
 
 @login_required
 def report_search(request):
-    query = request.GET.get('q', '')
-    items = StockItem.objects.all()
+    form = ReportSearchForm(request.GET or None)
+    issues = Issue.objects.all()
 
-    if query:
-        items = items.filter(
-            Q(name__icontains=query) |
-            Q(vendor__name__icontains=query)
-        )
+    if form.is_valid():
+        query = form.cleaned_data.get('query')
+        start_date = form.cleaned_data.get('start_date')
+        end_date = form.cleaned_data.get('end_date')
 
-    return render(request, 'store/report_search.html', {
-        'items': items,
-        'query': query
+        if query:
+            issues = issues.filter(stock_item__name__icontains=query) | issues.filter(stock_item__vendor__name__icontains=query)
+
+        if start_date:
+            issues = issues.filter(date_issued__gte=start_date)
+        if end_date:
+            issues = issues.filter(date_issued__lte=end_date)
+
+    return render(request, 'store/report.html', {
+        'form': form,
+        'issues': issues
     })
 
 # ✅ Office Management Views
