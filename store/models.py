@@ -43,3 +43,7 @@ class Receipt(models.Model):
 
     def __str__(self):
         return f"Received {self.quantity_received} of {self.stock_item.name} from {self.source}"
+
+@property
+def total_price(self):
+    return self.purchase_price * self.quantity
