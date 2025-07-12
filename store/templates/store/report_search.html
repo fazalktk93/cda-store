@@ -1,0 +1,12 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Export Report to PDF</h2>
+    <form method="get" action="{% url 'report_pdf' %}">
+        <div class="input-group mb-3">
+            <input type="text" name="q" class="form-control" placeholder="Search by item or vendor" value="{{ request.GET.q }}">
+            <button class="btn btn-outline-primary" type="submit">Export Filtered PDF</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

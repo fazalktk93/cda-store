@@ -6,7 +6,7 @@ import io
 from xhtml2pdf import pisa
 from django.views.generic import ListView, CreateView
 from django.urls import reverse_lazy
-
+from django.db.models import Q
 from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm
 
@@ -64,12 +64,23 @@ def issue_create(request):
 # PDF Report
 @login_required
 def report_pdf(request):
+    query = request.GET.get('q', '')
+    
+    items = StockItem.objects.all()
+    if query:
+        items = items.filter(
+            Q(name__icontains=query) | 
+            Q(vendor__name__icontains=query)
+        )
+
     template = get_template('store/report.html')
-    html = template.render({'items': StockItem.objects.all()})
+    html = template.render({'items': items, 'query': query})
+    
     buffer = io.BytesIO()
     pisa.CreatePDF(html, dest=buffer)
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename='report.pdf')
+
 
 
 # ✅ Office Management Views

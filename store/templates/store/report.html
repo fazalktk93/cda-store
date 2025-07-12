@@ -2,18 +2,20 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <title>Stock Report</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
-    <h2>Inventory Stock Report</h2>
+    <h2>Stock Report</h2>
     <table>
         <thead>
             <tr>
-                <th>Name</th>
+                <th>Item Name</th>
                 <th>Vendor</th>
                 <th>Unit</th>
                 <th>Price</th>
@@ -34,6 +36,3 @@
     </table>
 </body>
 </html>
-{% extends "store/base.html" %}
-{% block title %}Stock Report{% endblock %}
-{% block content %}
