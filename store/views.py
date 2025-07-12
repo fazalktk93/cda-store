@@ -59,16 +59,28 @@ def stock_create(request):
 @login_required
 def issue_create(request):
     form = IssueForm(request.POST or None)
-    stock_data = {item.id: item.quantity for item in StockItem.objects.all()}
-    stock_data_json = json.dumps(stock_data, cls=DjangoJSONEncoder)
+    stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
 
-    if form.is_valid():
-        form.save()
-        return redirect('stock_list')
+    if request.method == 'POST' and form.is_valid():
+        issue = form.save(commit=False)
+        stock_item = issue.stock_item
+        quantity_issued = issue.quantity_issued
+
+        # Decrease the stock quantity
+        if stock_item.quantity >= quantity_issued:
+            stock_item.quantity -= quantity_issued
+            stock_item.save()
+            issue.save()
+            form = IssueForm()  # Reset form after saving
+        else:
+            form.add_error('quantity_issued', 'Not enough stock available.')
+
+    recent_issues = Issue.objects.order_by('-date_issued')[:5]
 
     return render(request, 'store/issue_form.html', {
         'form': form,
-        'stock_data_json': stock_data_json
+        'stock_data_json': json.dumps(stock_data),
+        'recent_issues': recent_issues
     })
 
 # PDF Report
