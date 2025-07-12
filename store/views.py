@@ -10,6 +10,7 @@ from django.db.models import Q
 from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm
 from .forms import ReportSearchForm
+from datetime import datetime
 
 
 # Dashboard
@@ -101,6 +102,54 @@ def report_search(request):
     return render(request, 'store/report.html', {
         'form': form,
         'issues': issues
+    })
+@login_required
+def report_view(request):
+    form = ReportSearchForm(request.GET or None)
+    issues = Issue.objects.select_related('stock_item', 'office')
+    receipts = Receipt.objects.select_related('stock_item')
+
+    query = request.GET.get('query', '')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    office_id = request.GET.get('office')
+
+    if query:
+        issues = issues.filter(
+            Q(stock_item__name__icontains=query) |
+            Q(stock_item__vendor__name__icontains=query)
+        )
+        receipts = receipts.filter(
+            Q(stock_item__name__icontains=query) |
+            Q(stock_item__vendor__name__icontains=query)
+        )
+
+    if start_date:
+        issues = issues.filter(date_issued__gte=start_date)
+        receipts = receipts.filter(date_received__gte=start_date)
+
+    if end_date:
+        issues = issues.filter(date_issued__lte=end_date)
+        receipts = receipts.filter(date_received__lte=end_date)
+
+    if office_id:
+        issues = issues.filter(office_id=office_id)
+
+    export = request.GET.get("export")
+    if export == "pdf":
+        # Combine for export
+        combined_data = list(issues) + list(receipts)
+        template = get_template("store/report_pdf.html")
+        html = template.render({"entries": combined_data})
+        buffer = io.BytesIO()
+        pisa.CreatePDF(html, dest=buffer)
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename="report.pdf")
+
+    return render(request, "store/report.html", {
+        "form": form,
+        "issues": issues,
+        "receipts": receipts
     })
 
 # ✅ Office Management Views

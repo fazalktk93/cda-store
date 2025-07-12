@@ -1,34 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Inventory Report</title>
     <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 4px; text-align: left; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #444;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .header {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <h2>Filtered Stock Report</h2>
+    <h2>Inventory Report</h2>
+
     <table>
         <thead>
             <tr>
-                <th>Name</th>
+                <th>Item</th>
                 <th>Vendor</th>
                 <th>Unit</th>
                 <th>Price</th>
-                <th>Qty</th>
+                <th>Quantity</th>
+                <th>Type</th>
+                <th>Office</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
-        {% for item in items %}
+            {% for entry in receipts %}
             <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.vendor.name }}</td>
-                <td>{{ item.unit }}</td>
-                <td>{{ item.purchase_price }}</td>
-                <td>{{ item.quantity }}</td>
+                <td>{{ entry.stock_item.name }}</td>
+                <td>{{ entry.stock_item.vendor.name }}</td>
+                <td>{{ entry.stock_item.unit }}</td>
+                <td>{{ entry.stock_item.purchase_price }}</td>
+                <td>{{ entry.quantity_received }}</td>
+                <td>Purchased</td>
+                <td>-</td>
+                <td>{{ entry.date_received }}</td>
             </tr>
-        {% endfor %}
+            {% endfor %}
+            {% for entry in issues %}
+            <tr>
+                <td>{{ entry.stock_item.name }}</td>
+                <td>{{ entry.stock_item.vendor.name }}</td>
+                <td>{{ entry.stock_item.unit }}</td>
+                <td>{{ entry.stock_item.purchase_price }}</td>
+                <td>{{ entry.quantity_issued }}</td>
+                <td>Issued</td>
+                <td>{{ entry.office.name }}</td>
+                <td>{{ entry.date_issued }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </body>

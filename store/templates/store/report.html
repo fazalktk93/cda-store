@@ -5,47 +5,55 @@
 <h2 class="mt-4">Search & Export Report</h2>
 
 <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-        {{ form.query }}
-    </div>
-    <div class="col-md-3">
-        {{ form.start_date }}
-    </div>
-    <div class="col-md-3">
-        {{ form.end_date }}
-    </div>
+    <div class="col-md-3">{{ form.query }}</div>
+    <div class="col-md-2">{{ form.start_date }}</div>
+    <div class="col-md-2">{{ form.end_date }}</div>
+    <div class="col-md-3">{{ form.office }}</div>
     <div class="col-md-2">
         <button type="submit" class="btn btn-primary w-100">Search</button>
     </div>
 </form>
 
-<a href="?export=pdf" class="btn btn-success mb-3">Export PDF</a>
+<a href="?export=pdf{% if request.GET %}&{{ request.GET.urlencode }}{% endif %}" class="btn btn-success mb-3">Export PDF</a>
 
-<table class="table table-bordered">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>Name</th>
+            <th>Item</th>
             <th>Vendor</th>
             <th>Unit</th>
             <th>Price</th>
             <th>Quantity</th>
-            <th>Issued Date</th>
+            <th>Type</th>
+            <th>Office</th>
+            <th>Date</th>
         </tr>
     </thead>
     <tbody>
-        {% for issue in issues %}
+        {% for entry in receipts %}
         <tr>
-            <td>{{ issue.stock_item.name }}</td>
-            <td>{{ issue.stock_item.vendor.name }}</td>
-            <td>{{ issue.stock_item.unit }}</td>
-            <td>{{ issue.stock_item.purchase_price }}</td>
-            <td>{{ issue.quantity_issued }}</td>
-            <td>{{ issue.date_issued }}</td>
+            <td>{{ entry.stock_item.name }}</td>
+            <td>{{ entry.stock_item.vendor.name }}</td>
+            <td>{{ entry.stock_item.unit }}</td>
+            <td>{{ entry.stock_item.purchase_price }}</td>
+            <td>{{ entry.quantity_received }}</td>
+            <td><span class="badge bg-primary">Purchased</span></td>
+            <td>-</td>
+            <td>{{ entry.date_received }}</td>
         </tr>
-        {% empty %}
-        <tr><td colspan="6">No records found.</td></tr>
+        {% endfor %}
+        {% for entry in issues %}
+        <tr>
+            <td>{{ entry.stock_item.name }}</td>
+            <td>{{ entry.stock_item.vendor.name }}</td>
+            <td>{{ entry.stock_item.unit }}</td>
+            <td>{{ entry.stock_item.purchase_price }}</td>
+            <td>{{ entry.quantity_issued }}</td>
+            <td><span class="badge bg-danger">Issued</span></td>
+            <td>{{ entry.office.name }}</td>
+            <td>{{ entry.date_issued }}</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
-
 {% endblock %}

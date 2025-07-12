@@ -27,7 +27,7 @@ class OfficeForm(forms.ModelForm):
         
 class ReportSearchForm(forms.Form):
     query = forms.CharField(required=False, label='', widget=forms.TextInput(attrs={
-        'placeholder': 'Search by name or vendor',
+        'placeholder': 'Search name/vendor',
         'class': 'form-control'
     }))
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={
@@ -38,3 +38,9 @@ class ReportSearchForm(forms.Form):
         'type': 'date',
         'class': 'form-control'
     }))
+    office = forms.ModelChoiceField(
+        queryset=Office.objects.all(),
+        required=False,
+        empty_label="All Offices",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
