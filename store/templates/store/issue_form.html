@@ -1,69 +1,20 @@
-{% extends 'store/base.html' %}
-{% load static %}
-
-{% block title %}Issue Stock{% endblock %}
-
-{% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Issue Stock</h2>
-    <form method="post" class="card p-4 shadow-sm">
-        {% csrf_token %}
-
-        <div class="row mb-3 align-items-center">
-            <div class="col-sm-4">
-                {{ form.stock_item.label_tag }}
-                {{ form.stock_item }}
-            </div>
-            <div class="col-sm-4">
-                <label class="form-label">Remaining:</label>
-                <span id="stock-remaining" class="text-success fw-bold">--</span>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            {{ form.office.label_tag }}
-            {{ form.office }}
-        </div>
-
-        <div class="mb-3">
-            {{ form.quantity_issued.label_tag }}
-            {{ form.quantity_issued }}
-        </div>
-
-        <div class="mb-3">
-            {{ form.date_issued.label_tag }}
-            {{ form.date_issued }}
-        </div>
-
-        <div class="mb-3">
-            {{ form.remarks.label_tag }}
-            {{ form.remarks }}
-        </div>
-
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
+    const stockData = {{ stock_data_json|safe }};
+
     document.addEventListener('DOMContentLoaded', function () {
-        const stockSelect = document.querySelector('#id_stock_item');
-        const stockQty = document.getElementById('stock-remaining');
+        const stockSelect = document.getElementById('id_stock_item');
+        const infoLabel = document.createElement('span');
+        infoLabel.style.marginLeft = '15px';
+        stockSelect.parentNode.appendChild(infoLabel);
 
-        const stockData = {{ stock_data_json|safe }};
-
-        function updateStock() {
-            const selectedId = stockSelect.value;
-            if (stockData[selectedId]) {
-                stockQty.textContent = stockData[selectedId];
+        stockSelect.addEventListener('change', function () {
+            const itemId = this.value;
+            const remaining = stockData[itemId];
+            if (remaining !== undefined) {
+                infoLabel.innerText = `Remaining: ${remaining}`;
             } else {
-                stockQty.textContent = '--';
+                infoLabel.innerText = '';
             }
-        }
-
-        stockSelect.addEventListener('change', updateStock);
-        updateStock();  // On page load
+        });
     });
 </script>
-{% endblock %}
