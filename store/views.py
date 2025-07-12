@@ -195,6 +195,7 @@ class OfficeCreateView(CreateView):
     form_class = OfficeForm  # ✅ Use only form_class to avoid conflict
     template_name = 'store/office_form.html'
     success_url = reverse_lazy('office_list')
+    
 @login_required
 def office_create(request):
     form = OfficeForm(request.POST or None)
@@ -202,3 +203,7 @@ def office_create(request):
         form.save()
         return redirect('office_list')
     return render(request, 'store/office_form.html', {'form': form})
+
+@login_required
+def report_form_view(request):
+    return render(request, 'store/report_form.html')
