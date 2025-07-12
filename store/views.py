@@ -206,4 +206,4 @@ def office_create(request):
 
 @login_required
 def report_form_view(request):
-    return render(request, 'store/report_result.html')
+    return render(request, 'store/report_form.html')
