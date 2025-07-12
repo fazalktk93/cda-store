@@ -1,42 +1,47 @@
-{% extends 'store/base.html' %}
-{% load static %}
-
-{% block content %}
-<div class="container mt-5">
-    <h2>Issue Stock</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-
-        <div id="remaining-container" style="margin-top:10px;">
-            <label id="remainingQtyLabel" style="font-weight: bold;"></label>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
+<form method="post">
+{% csrf_token %}
+<div class="form-group">
+    <label for="id_stock_item">Stock item:</label>
+    {{ form.stock_item }}
+    <span id="remainingQtyLabel" style="margin-left: 10px; font-weight: bold;"></span>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<div class="form-group">
+    <label for="id_office">Office:</label>
+    {{ form.office }}
+</div>
+
+<div class="form-group">
+    <label for="id_quantity_issued">Quantity issued:</label>
+    {{ form.quantity_issued }}
+</div>
+
+<div class="form-group">
+    <label for="id_remarks">Remarks:</label>
+    {{ form.remarks }}
+</div>
+
+<div class="form-group">
+    <label for="id_date_issued">Date issued:</label>
+    {{ form.date_issued }}
+</div>
+
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
 <script>
     const stockData = {{ stock_data_json|safe }};
 
     document.addEventListener('DOMContentLoaded', function () {
-        const select = document.getElementById('id_stock_item');
+        const dropdown = document.getElementById('id_stock_item');
         const label = document.getElementById('remainingQtyLabel');
 
         function updateLabel() {
-            const selectedId = select.value;
-            const remaining = stockData[selectedId];
-            label.textContent = remaining !== undefined ? `Remaining: ${remaining}` : '';
+            const selectedId = dropdown.value;
+            const qty = stockData[selectedId];
+            label.textContent = qty !== undefined ? `Remaining: ${qty}` : '';
         }
 
-        if (select && label) {
-            select.addEventListener('change', updateLabel);
-            updateLabel(); // initialize
-        } else {
-            console.error("Dropdown or label not found.");
-        }
+        dropdown.addEventListener('change', updateLabel);
+        updateLabel();  // Initial run
     });
 </script>
-{% endblock %}

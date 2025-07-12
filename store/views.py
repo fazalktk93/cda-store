@@ -59,7 +59,6 @@ def stock_create(request):
 @login_required
 def issue_create(request):
     form = IssueForm(request.POST or None)
-
     stock_data = {item.id: item.quantity for item in StockItem.objects.all()}
     stock_data_json = json.dumps(stock_data, cls=DjangoJSONEncoder)
 
