@@ -1,20 +1,31 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Issue Stock</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
     const stockData = {{ stock_data_json|safe }};
-
     document.addEventListener('DOMContentLoaded', function () {
-        const stockSelect = document.getElementById('id_stock_item');
-        const infoLabel = document.createElement('span');
-        infoLabel.style.marginLeft = '15px';
-        stockSelect.parentNode.appendChild(infoLabel);
+        const select = document.getElementById('id_stock_item');
+        const label = document.createElement('span');
+        label.style.marginLeft = '10px';
+        select.parentNode.appendChild(label);
 
-        stockSelect.addEventListener('change', function () {
+        select.addEventListener('change', function () {
             const itemId = this.value;
-            const remaining = stockData[itemId];
-            if (remaining !== undefined) {
-                infoLabel.innerText = `Remaining: ${remaining}`;
-            } else {
-                infoLabel.innerText = '';
-            }
+            const qty = stockData[itemId];
+            label.innerText = qty !== undefined ? `Remaining: ${qty}` : '';
         });
     });
 </script>
+{% endblock %}
