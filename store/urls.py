@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import OfficeListView, OfficeCreateView
+from .views import OfficeListView, OfficeCreateView, report_view
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -12,6 +12,6 @@ urlpatterns = [
     path('report/pdf/', views.report_pdf, name='report_pdf'),
     path('offices/', OfficeListView.as_view(), name='office_list'),
     path('offices/add/', OfficeCreateView.as_view(), name='office_add'),
-    path('report/', views.report_search, name='report_search'),
+    path('report/', report_view, name='report_view'),
     path('report/pdf/', views.report_pdf, name='report_pdf'),
 ]
