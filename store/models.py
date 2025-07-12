@@ -16,13 +16,18 @@ class Vendor(models.Model):
 
 class StockItem(models.Model):
     name = models.CharField(max_length=200)
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE)
     unit = models.CharField(max_length=50)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)  # ✅ Real DB field
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.total_price = self.purchase_price * self.quantity  # ✅ Auto-calculate
+        super().save(*args, **kwargs)
 
 class Issue(models.Model):
     stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
@@ -43,6 +48,4 @@ class Receipt(models.Model):
 
     def __str__(self):
         return f"Received {self.quantity_received} of {self.stock_item.name} from {self.source}"
-    @property
-    def total_price(self):
-        return self.stock_item.purchase_price * self.quantity_received
+

@@ -13,7 +13,7 @@ class StockItemForm(forms.ModelForm):
         fields = ['name', 'vendor', 'unit', 'purchase_price', 'quantity']
         labels = {
             'unit': 'Unit Price',
-            'purchase_price': 'Total Price',
+            'purchase_price': 'Purchase Price',
         }
 
 class IssueForm(forms.ModelForm):
