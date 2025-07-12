@@ -1,16 +1,23 @@
 {% extends 'store/base.html' %}
 {% load static %}
+
 {% block content %}
 <div class="container mt-5">
     <h2>Add New Office</h2>
     <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Save</button>
+    <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>
 {% endblock %}
+
 {% block title %}Add Office{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'store/css/office_form.css' %}">
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'store/js/office_form.js' %}"></script>
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'store/css/office_form.css' %}">
 {% endblock %}
