@@ -8,7 +8,7 @@ from django.views.generic import ListView, CreateView
 from django.urls import reverse_lazy
 
 from .models import Vendor, StockItem, Issue, Receipt, Office
-from .forms import VendorForm, StockItemForm, IssueForm
+from .forms import OfficeForm, VendorForm, StockItemForm, IssueForm
 
 # Dashboard
 @login_required
@@ -66,7 +66,7 @@ def report_pdf(request):
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename='report.pdf')
 
-# ✅ Office Management Views
+# Office Management Views
 class OfficeListView(ListView):
     model = Office
     template_name = 'store/office_list.html'
@@ -76,3 +76,4 @@ class OfficeCreateView(CreateView):
     fields = ['name', 'location']
     template_name = 'store/office_form.html'
     success_url = reverse_lazy('office_list')
+    form_class = OfficeForm
