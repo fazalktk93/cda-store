@@ -11,6 +11,10 @@ class StockItemForm(forms.ModelForm):
     class Meta:
         model = StockItem
         fields = ['name', 'vendor', 'unit', 'purchase_price', 'quantity']
+        labels = {
+            'unit': 'Unit Price',
+            'purchase_price': 'Total Price',
+        }
 
 class IssueForm(forms.ModelForm):
     class Meta:
