@@ -33,6 +33,9 @@ class StockItem(models.Model):
         total_issued = self.issue_set.aggregate(qty=Sum('quantity_issued'))['qty'] or 0
         return total_received - total_issued
 
+    def __str__(self):
+        return self.name
+
 
 
 class Issue(models.Model):
