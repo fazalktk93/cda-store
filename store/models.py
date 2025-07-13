@@ -23,6 +23,7 @@ class StockItem(models.Model):
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    unit = models.CharField(max_length=100, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.total_price = self.purchase_price * self.quantity
