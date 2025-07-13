@@ -56,17 +56,23 @@ def vendor_list(request):
     return render(request, 'store/vendor_list.html', {'vendors': vendors})
 
 
+def safe_parse_date(value):
+    return parse_date(value) if isinstance(value, str) and value else None
+
 @login_required
 def vendor_detail(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
     stock_items = StockItem.objects.filter(vendor=vendor)
 
-    # Optional date filtering
-    start_date = parse_date(request.GET.get('start'))
-    end_date = parse_date(request.GET.get('end'))
+    # Safe date parsing
+    start_date = safe_parse_date(request.GET.get('start'))
+    end_date = safe_parse_date(request.GET.get('end'))
 
     if start_date and end_date:
-        receipts = Receipt.objects.filter(stock_item__in=stock_items, date__range=(start_date, end_date))
+        receipts = Receipt.objects.filter(
+            stock_item__in=stock_items,
+            date__range=(start_date, end_date)
+        )
     else:
         receipts = Receipt.objects.filter(stock_item__in=stock_items)
 
