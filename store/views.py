@@ -226,10 +226,19 @@ def report_search(request):
     if query:
         report = report.filter(stock_item__name__icontains=query)
 
+    # ✅ Group by office, item, and date_issued
+    report = report.values(
+        'date_issued',
+        'office__name',
+        'stock_item__name'
+    ).annotate(
+        total_quantity=Sum('quantity_issued')
+    ).order_by('-date_issued')
+
     offices = Office.objects.all()
 
     return render(request, "store/report_search.html", {
-        "report": report.order_by("-date_issued"),
+        "report": report,
         "start_date": start_date,
         "end_date": end_date,
         "selected_office": selected_office,

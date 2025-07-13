@@ -48,22 +48,21 @@
                     <th>Date Issued</th>
                     <th>Office</th>
                     <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Remarks</th>
+                    <th>Total Quantity</th>
                 </tr>
             </thead>
             <tbody>
-                {% for issue in report %}
+                {% for row in report %}
                 <tr>
-                    <td>{{ issue.date_issued }}</td>
-                    <td>{{ issue.office.name }}</td>
-                    <td>{{ issue.stock_item.name }}</td>
-                    <td>{{ issue.quantity_issued }}</td>
-                    <td>{{ issue.remarks }}</td>
+                    <td>{{ row.date_issued }}</td>
+                    <td>{{ row.office__name }}</td>
+                    <td>{{ row.stock_item__name }}</td>
+                    <td>{{ row.total_quantity }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
     {% else %}
         <div class="alert alert-warning text-center">No matching results found.</div>
