@@ -11,32 +11,40 @@
 
     <table class="table table-bordered text-center" id="stockTable">
         <thead class="table-dark">
+            <!-- Search row -->
             <tr>
-                <th>
-                    <input type="text" class="form-control form-control-sm" onkeyup="filterTable(0)" placeholder="Search Voucher No">
-                </th>
-                <th>
-                    <input type="text" class="form-control form-control-sm" onkeyup="filterTable(1)" placeholder="Search Item">
-                </th>
-                <th>
-                    <input type="text" class="form-control form-control-sm" onkeyup="filterTable(2)" placeholder="Search Quantity">
-                </th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(0)" placeholder="Search Voucher No"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(1)" placeholder="Search Item"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(2)" placeholder="Search Vendor"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(3)" placeholder="Search Quantity"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(4)" placeholder="Search Unit Price"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(5)" placeholder="Search Total Price"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(6)" placeholder="Search Date"></th>
             </tr>
+            <!-- Table headers -->
             <tr>
                 <th>Voucher No</th>
                 <th>Item</th>
+                <th>Vendor</th>
                 <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+                <th>Date Received</th>
             </tr>
         </thead>
         <tbody>
-            {% for entry in grouped_receipts %}
+            {% for receipt in receipts %}
             <tr>
-                <td>{{ entry.voucher_number }}</td>
-                <td>{{ entry.stock_item__name }}</td>
-                <td>{{ entry.total_quantity }}</td>
+                <td>{{ receipt.voucher_number }}</td>
+                <td>{{ receipt.stock_item.name }}</td>
+                <td>{{ receipt.stock_item.vendor.name }}</td>
+                <td>{{ receipt.quantity_received }}</td>
+                <td>{{ receipt.unit_price|floatformat:2 }}</td>
+                <td>{{ receipt.quantity_received|floatformat:2|add:""|floatformat:2|add:receipt.unit_price|floatformat:2 }}</td>
+                <td>{{ receipt.date_received }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="3">No stock entries found.</td></tr>
+            <tr><td colspan="7">No stock entries found.</td></tr>
             {% endfor %}
         </tbody>
     </table>
