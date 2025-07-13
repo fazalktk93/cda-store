@@ -92,11 +92,11 @@ def vendor_detail(request, vendor_id):
 def stock_list(request):
     grouped_receipts = (
         Receipt.objects
-        .values('stock_item__name', 'voucher_number')  # Grouping keys
+        .values('stock_item__name', 'voucher_number')
         .annotate(
             total_quantity=Sum('quantity_received'),
-            unit_price=Avg('unit_price'),  # Assumes price is the same
-            total_price=Sum(F('quantity_received') * F('unit_price'))
+            unit_price=Avg('unit_price'),  # if all entries use same price, Avg is fine
+            total_price=Sum('total_price')  # ✅ this is the fix
         )
         .order_by('-voucher_number')
     )
