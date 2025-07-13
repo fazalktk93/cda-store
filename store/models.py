@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 
 class Office(models.Model):
     name = models.CharField(max_length=200)
@@ -31,7 +32,7 @@ class StockItem(models.Model):
         total_received = self.receipt_set.aggregate(qty=Sum('quantity_received'))['qty'] or 0
         total_issued = self.issue_set.aggregate(qty=Sum('quantity_issued'))['qty'] or 0
         return total_received - total_issued
-    
+
 
 
 class Issue(models.Model):
