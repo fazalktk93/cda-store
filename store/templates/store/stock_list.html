@@ -4,31 +4,58 @@
 <div class="container mt-4">
     <h2 class="mb-4 text-center">Stock Entries</h2>
 
-    <table class="table table-bordered text-center">
+    <!-- Add Stock Button -->
+    <div class="text-end mb-3">
+        <a href="{% url 'stock_create' %}" class="btn btn-primary">+ Add Stock</a>
+    </div>
+
+    <table class="table table-bordered text-center" id="stockTable">
         <thead class="table-dark">
+            <tr>
+                <th>
+                    <input type="text" class="form-control form-control-sm" onkeyup="filterTable(0)" placeholder="Search Voucher No">
+                </th>
+                <th>
+                    <input type="text" class="form-control form-control-sm" onkeyup="filterTable(1)" placeholder="Search Item">
+                </th>
+                <th>
+                    <input type="text" class="form-control form-control-sm" onkeyup="filterTable(2)" placeholder="Search Quantity">
+                </th>
+            </tr>
             <tr>
                 <th>Voucher No</th>
                 <th>Item</th>
                 <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total Price</th>
             </tr>
         </thead>
         <tbody>
             {% for entry in grouped_receipts %}
             <tr>
-            <td>{{ entry.voucher_number }}</td>
-            <td>{{ entry.stock_item__name }}</td>
-            <td>{{ entry.total_quantity }}</td>
-            <td>{{ entry.unit_price|floatformat:2 }}</td>
-            <td>{{ entry.total_price|floatformat:2 }}</td>
+                <td>{{ entry.voucher_number }}</td>
+                <td>{{ entry.stock_item__name }}</td>
+                <td>{{ entry.total_quantity }}</td>
             </tr>
             {% empty %}
-            <tr>
-                <td colspan="5">No stock entries found.</td>
-            </tr>
+            <tr><td colspan="3">No stock entries found.</td></tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+function filterTable(colIndex) {
+    const input = document.querySelectorAll("thead input")[colIndex];
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("stockTable");
+    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+    for (let row of rows) {
+        const cell = row.getElementsByTagName("td")[colIndex];
+        if (cell) {
+            const text = cell.textContent || cell.innerText;
+            row.style.display = text.toUpperCase().includes(filter) ? "" : "none";
+        }
+    }
+}
+</script>
 {% endblock %}
