@@ -152,18 +152,31 @@ def issue_create(request):
     form = IssueForm(request.POST or None)
     recent_issues = Issue.objects.select_related('stock_item', 'office').order_by('-date_issued')[:10]
 
-    # Calculate live available quantity per StockItem
+    # ✅ Calculate total available per StockItem
     stock_data = {}
-    for item in StockItem.objects.all():
+    all_items = StockItem.objects.all()
+    for item in all_items:
         received = Receipt.objects.filter(stock_item=item).aggregate(total=Sum('quantity_received'))['total'] or 0
         issued = Issue.objects.filter(stock_item=item).aggregate(total=Sum('quantity_issued'))['total'] or 0
         available = received - issued
         stock_data[str(item.id)] = available
 
+    # ✅ Get only unique item names (manual workaround for SQLite)
+    names_seen = set()
+    unique_items = []
+    for item in all_items.order_by('name'):
+        if item.name not in names_seen:
+            unique_items.append(item)
+            names_seen.add(item.name)
+
+    # ✅ Limit dropdown to unique items
+    form.fields['stock_item'].queryset = StockItem.objects.filter(id__in=[i.id for i in unique_items])
+
+    # ✅ Handle form POST
     if request.method == 'POST' and form.is_valid():
         new_issue = form.save(commit=False)
 
-        # Group by item, office, and date
+        # Merge duplicate issue per day
         existing = Issue.objects.filter(
             stock_item=new_issue.stock_item,
             office=new_issue.office,
@@ -172,7 +185,8 @@ def issue_create(request):
 
         if existing:
             existing.quantity_issued += new_issue.quantity_issued
-            existing.remarks = new_issue.remarks or existing.remarks
+            if new_issue.remarks:
+                existing.remarks = new_issue.remarks
             existing.save()
         else:
             new_issue.save()
