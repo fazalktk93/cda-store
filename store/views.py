@@ -212,46 +212,36 @@ def report_pdf(request):
 def report_search(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
+    selected_office = request.GET.get('office')
     query = request.GET.get('query', '').strip()
 
-    include_issues = 'include_issues' in request.GET
-    include_purchases = 'include_purchases' in request.GET
+    issues = Issue.objects.select_related('stock_item', 'office')
 
-    purchases = []
-    issues = []
+    if start_date:
+        issues = issues.filter(date_issued__gte=start_date)
+    if end_date:
+        issues = issues.filter(date_issued__lte=end_date)
+    if selected_office:
+        issues = issues.filter(office__id=selected_office)
+    if query:
+        issues = issues.filter(stock_item__name__icontains=query)
 
-    if include_purchases:
-        purchases = Receipt.objects.all()
-        if start_date:
-            purchases = purchases.filter(date_received__gte=start_date)
-        if end_date:
-            purchases = purchases.filter(date_received__lte=end_date)
-        if query:
-            purchases = purchases.filter(
-                Q(stock_item__name__icontains=query) |
-                Q(stock_item__vendor__name__icontains=query)
-            )
+    grouped = (
+        issues.values('office__name', 'stock_item__name')
+        .annotate(total_quantity=Sum('quantity_issued'))
+        .order_by('office__name', 'stock_item__name')
+    )
 
-    if include_issues:
-        issues = Issue.objects.all()
-        if start_date:
-            issues = issues.filter(date_issued__gte=start_date)
-        if end_date:
-            issues = issues.filter(date_issued__lte=end_date)
-        if query:
-            issues = issues.filter(
-                Q(stock_item__name__icontains=query) |
-                Q(office__name__icontains=query)
-            )
+    offices = Office.objects.all()
 
-    context = {
-        'purchases': purchases,
-        'issues': issues,
-        'show_vendor': 'show_vendor' in request.GET,
-        'show_office': 'show_office' in request.GET,
-    }
-
-    return render(request, 'store/report_search.html', context)
+    return render(request, 'store/report_search.html', {
+        'report': grouped,
+        'start_date': start_date,
+        'end_date': end_date,
+        'query': query,
+        'selected_office': selected_office,
+        'offices': offices,
+    })
 
 @login_required
 def report_view(request):
