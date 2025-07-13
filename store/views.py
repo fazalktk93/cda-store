@@ -111,18 +111,26 @@ def stock_list(request):
 @login_required
 def stock_create(request):
     form = StockItemForm(request.POST or None)
+    
     if request.method == 'POST' and form.is_valid():
         stock_item = form.save()
+        
+        voucher_number = request.POST.get('voucher_number', '').strip()
+        if not voucher_number:
+            form.add_error(None, "Voucher number is required.")
+            return render(request, 'store/stock_form.html', {'form': form})
 
-        # ✅ Auto-create a receipt if this is a new item
+        # Create a Receipt tied to this stock item
         Receipt.objects.create(
             stock_item=stock_item,
             quantity_received=stock_item.quantity,
             unit_price=stock_item.purchase_price,
-            source='Initial Stock Entry'
+            source='Initial Stock Entry',
+            date_received=timezone.now().date(),
+            voucher_number=voucher_number
         )
 
-        return redirect('stock_list')  # or whatever your stock list view name is
+        return redirect('stock_list')
 
     return render(request, 'store/stock_form.html', {'form': form})
 

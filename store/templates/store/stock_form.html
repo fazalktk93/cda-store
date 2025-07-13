@@ -2,9 +2,17 @@
 {% block title %}Add Stock Item{% endblock %}
 {% block content %}
 <h2>Add Stock Item</h2>
+
 <form method="post">
-{% csrf_token %}
-{{ form.as_p }}
-<button class="btn btn-success">Save</button>
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div class="mb-3">
+        <label for="id_voucher_number" class="form-label">Voucher Number</label>
+        <input type="text" name="voucher_number" class="form-control" required>
+    </div>
+
+    <button class="btn btn-success">Save</button>
 </form>
+
 {% endblock %}

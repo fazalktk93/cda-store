@@ -7,8 +7,8 @@
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
-                <th>Item</th>
                 <th>Voucher No</th>
+                <th>Item</th>
                 <th>Quantity</th>
                 <th>Unit Price</th>
                 <th>Total Price</th>
@@ -17,8 +17,8 @@
         <tbody>
             {% for entry in grouped_receipts %}
             <tr>
-            <td>{{ entry.stock_item__name }}</td>
             <td>{{ entry.voucher_number }}</td>
+            <td>{{ entry.stock_item__name }}</td>
             <td>{{ entry.total_quantity }}</td>
             <td>{{ entry.unit_price|floatformat:2 }}</td>
             <td>{{ entry.total_price|floatformat:2 }}</td>
