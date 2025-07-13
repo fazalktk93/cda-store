@@ -17,9 +17,13 @@ class IssueForm(forms.ModelForm):
     class Meta:
         model = Issue
         fields = ['stock_item', 'office', 'quantity_issued', 'remarks', 'date_issued']
-        widgets = {
-            'date_issued': forms.DateInput(attrs={'type': 'date'})
-        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Only include unique stock items by name (first occurrence)
+        unique_names = StockItem.objects.values_list('name', flat=True).distinct()
+        self.fields['stock_item'].queryset = StockItem.objects.filter(name__in=unique_names).order_by('name')
         
 class OfficeForm(forms.ModelForm):
     class Meta:
