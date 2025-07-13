@@ -30,9 +30,9 @@
             {% for issue in recent_issues %}
             <tr>
                 <td>{{ issue.date_issued }}</td>
-                <td>{{ issue.stock_item.name }}</td>
-                <td>{{ issue.office.name }}</td>
-                <td>{{ issue.quantity_issued }}</td>
+                <td>{{ issue.stock_item__name }}</td>
+                <td>{{ issue.office__name|default:"N/A" }}</td>
+                <td>{{ issue.total_quantity }}</td>
                 <td>{{ issue.remarks }}</td>
             </tr>
             {% empty %}

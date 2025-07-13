@@ -149,9 +149,11 @@ def stock_create(request):
 def issue_list(request):
     recent_issues = (
         Issue.objects
+        .values('date_issued', 'stock_item__name', 'office__name', 'remarks')
+        .annotate(total_quantity=Sum('quantity_issued'))
         .order_by('-date_issued')
-        .distinct('date_issued', 'stock_item', 'office')  # deduplicate
     )
+
     return render(request, 'store/issue_list.html', {
         'recent_issues': recent_issues
     })
