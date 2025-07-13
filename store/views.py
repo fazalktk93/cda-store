@@ -15,6 +15,8 @@ from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm
 from .forms import ReportSearchForm
 from datetime import date
 from django.db.models import Sum, Avg, F
+from collections import defaultdict
+from store.models import Receipt
 
 
 # Dashboard
@@ -90,19 +92,30 @@ def vendor_detail(request, vendor_id):
 # Stock CRUD
 @login_required
 def stock_list(request):
-    grouped_receipts = (
-        Receipt.objects
-        .values('stock_item__name', 'voucher_number')
-        .annotate(
-            total_quantity=Sum('quantity_received'),
-            unit_price=Avg('unit_price')  # approximate if multiple
-        )
-        .order_by('-voucher_number')
-    )
+    receipts = Receipt.objects.select_related('stock_item', 'stock_item__vendor').order_by('-date_received')
 
-    # Manually add total_price = quantity * unit_price
-    for entry in grouped_receipts:
-        entry["total_price"] = entry["total_quantity"] * entry["unit_price"]
+    grouped = defaultdict(list)
+    for receipt in receipts:
+        key = (receipt.voucher_number, receipt.stock_item.name)
+        grouped[key].append(receipt)
+
+    grouped_receipts = []
+    for (voucher_number, item_name), items in grouped.items():
+        total_quantity = sum(r.quantity_received for r in items)
+        unit_price = items[0].unit_price  # Assume same for all in group
+        total_price = sum(r.quantity_received * r.unit_price for r in items)
+        vendor_name = items[0].stock_item.vendor.name
+        date_received = items[0].date_received
+
+        grouped_receipts.append({
+            'voucher_number': voucher_number,
+            'item_name': item_name,
+            'vendor_name': vendor_name,
+            'total_quantity': total_quantity,
+            'unit_price': unit_price,
+            'total_price': total_price,
+            'date_received': date_received,
+        })
 
     return render(request, 'store/stock_list.html', {
         'grouped_receipts': grouped_receipts
