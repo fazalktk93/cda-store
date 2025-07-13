@@ -210,37 +210,31 @@ def report_pdf(request):
 
 @login_required
 def report_search(request):
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    selected_office = request.GET.get('office')
-    query = request.GET.get('query', '').strip()
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+    selected_office = request.GET.get("office")
+    query = request.GET.get("query")
 
-    issues = Issue.objects.select_related('stock_item', 'office')
+    report = Issue.objects.all()
 
     if start_date:
-        issues = issues.filter(date_issued__gte=start_date)
+        report = report.filter(date_issued__gte=start_date)
     if end_date:
-        issues = issues.filter(date_issued__lte=end_date)
+        report = report.filter(date_issued__lte=end_date)
     if selected_office:
-        issues = issues.filter(office__id=selected_office)
+        report = report.filter(office_id=selected_office)
     if query:
-        issues = issues.filter(stock_item__name__icontains=query)
-
-    grouped = (
-        issues.values('office__name', 'stock_item__name')
-        .annotate(total_quantity=Sum('quantity_issued'))
-        .order_by('office__name', 'stock_item__name')
-    )
+        report = report.filter(stock_item__name__icontains=query)
 
     offices = Office.objects.all()
 
-    return render(request, 'store/report_search.html', {
-        'report': grouped,
-        'start_date': start_date,
-        'end_date': end_date,
-        'query': query,
-        'selected_office': selected_office,
-        'offices': offices,
+    return render(request, "store/report_search.html", {
+        "report": report.order_by("-date_issued"),
+        "start_date": start_date,
+        "end_date": end_date,
+        "selected_office": selected_office,
+        "query": query,
+        "offices": offices
     })
 
 @login_required
