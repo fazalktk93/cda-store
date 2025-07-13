@@ -36,27 +36,30 @@
     </form>
 
     {% if report %}
-    <!-- Print Button -->
     <div class="d-flex justify-content-end mb-3">
         <button onclick="window.print()" class="btn btn-secondary">Print</button>
     </div>
 
-    <!-- Report Table (Print Area) -->
+    <!-- Detailed Report Table -->
     <div id="print-area">
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>Date Issued</th>
                     <th>Office</th>
                     <th>Item</th>
-                    <th>Total Quantity</th>
+                    <th>Quantity</th>
+                    <th>Remarks</th>
                 </tr>
             </thead>
             <tbody>
-                {% for entry in report %}
+                {% for issue in report %}
                 <tr>
-                    <td>{{ entry.office__name }}</td>
-                    <td>{{ entry.stock_item__name }}</td>
-                    <td>{{ entry.total_quantity }}</td>
+                    <td>{{ issue.date_issued }}</td>
+                    <td>{{ issue.office.name }}</td>
+                    <td>{{ issue.stock_item.name }}</td>
+                    <td>{{ issue.quantity_issued }}</td>
+                    <td>{{ issue.remarks }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -67,7 +70,7 @@
     {% endif %}
 </div>
 
-<!-- Print-Only CSS -->
+<!-- Print CSS -->
 <style>
 @media print {
     body * {
