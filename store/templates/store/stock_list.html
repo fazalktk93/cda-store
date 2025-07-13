@@ -1,72 +1,104 @@
 {% extends "store/base.html" %}
 {% block title %}Stock List{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4 text-center">Stock Entries</h2>
 
-    <!-- Add Stock Button -->
-    <div class="text-end mb-3">
+    <!-- Add + Print Buttons -->
+    <div class="d-flex justify-content-between mb-3">
         <a href="{% url 'stock_create' %}" class="btn btn-primary">+ Add Stock</a>
+        <button onclick="printFilteredTable()" class="btn btn-secondary">Print</button>
     </div>
 
-    <table class="table table-bordered text-center" id="stockTable">
-        <thead class="table-dark">
-            <!-- Search row -->
-            <tr>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(0)" placeholder="Search Voucher No"></th>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(1)" placeholder="Search Item"></th>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(2)" placeholder="Search Vendor"></th>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(3)" placeholder="Search Quantity"></th>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(4)" placeholder="Search Unit Price"></th>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(5)" placeholder="Search Total Price"></th>
-                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(6)" placeholder="Search Date"></th>
-            </tr>
-            <!-- Table headers -->
-            <tr>
-                <th>Voucher No</th>
-                <th>Item</th>
-                <th>Vendor</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total Price</th>
-                <th>Date Received</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for entry in grouped_receipts %}
-        <tr>
-            <td>{{ entry.voucher_number }}</td>
-            <td>{{ entry.item_name }}</td>
-            <td>{{ entry.vendor_name }}</td>
-            <td>{{ entry.total_quantity }}</td>
-            <td>{{ entry.unit_price|floatformat:2 }}</td>
-            <td>{{ entry.total_price|floatformat:2 }}</td>
-            <td>{{ entry.date_received }}</td>
-        </tr>
-        {% endfor %}
-        {% if not grouped_receipts %}
-        <tr>
-            <td colspan="7" class="text-center">No stock entries found.</td>
-        </tr>
-        {% endif %}
-        </tbody>
-    </table>
+    <!-- Printable area -->
+    <div id="print-area">
+        <table class="table table-bordered text-center" id="stockTable">
+            <thead class="table-dark">
+                <!-- Search row -->
+                <tr>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(0)" placeholder="Search Voucher No"></th>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(1)" placeholder="Search Item"></th>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(2)" placeholder="Search Vendor"></th>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(3)" placeholder="Search Quantity"></th>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(4)" placeholder="Search Unit Price"></th>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(5)" placeholder="Search Total Price"></th>
+                    <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(6)" placeholder="Search Date"></th>
+                </tr>
+                <!-- Table headers -->
+                <tr>
+                    <th>Voucher No</th>
+                    <th>Item</th>
+                    <th>Vendor</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                    <th>Date Received</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in grouped_receipts %}
+                <tr>
+                    <td>{{ entry.voucher_number }}</td>
+                    <td>{{ entry.item_name }}</td>
+                    <td>{{ entry.vendor_name }}</td>
+                    <td>{{ entry.total_quantity }}</td>
+                    <td>{{ entry.unit_price|floatformat:2 }}</td>
+                    <td>{{ entry.total_price|floatformat:2 }}</td>
+                    <td>{{ entry.date_received }}</td>
+                </tr>
+                {% endfor %}
+                {% if not grouped_receipts %}
+                <tr>
+                    <td colspan="7" class="text-center">No stock entries found.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
+<!-- Filter Logic -->
 <script>
 function filterTable(colIndex) {
     const input = document.querySelectorAll("thead input")[colIndex];
     const filter = input.value.toUpperCase();
-    const table = document.getElementById("stockTable");
-    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+    const rows = document.querySelectorAll("#stockTable tbody tr");
 
-    for (let row of rows) {
-        const cell = row.getElementsByTagName("td")[colIndex];
+    rows.forEach(row => {
+        const cell = row.cells[colIndex];
         if (cell) {
             const text = cell.textContent || cell.innerText;
             row.style.display = text.toUpperCase().includes(filter) ? "" : "none";
         }
+    });
+}
+</script>
+
+<!-- Print Logic -->
+<style>
+@media print {
+    body * {
+        visibility: hidden;
     }
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    input, .btn {
+        display: none !important;
+    }
+}
+</style>
+
+<script>
+function printFilteredTable() {
+    window.print();
 }
 </script>
 {% endblock %}
