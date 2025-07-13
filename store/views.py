@@ -152,16 +152,18 @@ def issue_create(request):
     form = IssueForm(request.POST or None)
     recent_issues = Issue.objects.select_related('stock_item', 'office').order_by('-date_issued')[:10]
 
-    # stock quantities for client-side display
-    stock_data = {
-        str(item.id): item.total_quantity_available()  # Assuming a helper method
-        for item in StockItem.objects.all()
-    }
+    # Calculate live available quantity per StockItem
+    stock_data = {}
+    for item in StockItem.objects.all():
+        received = Receipt.objects.filter(stock_item=item).aggregate(total=Sum('quantity_received'))['total'] or 0
+        issued = Issue.objects.filter(stock_item=item).aggregate(total=Sum('quantity_issued'))['total'] or 0
+        available = received - issued
+        stock_data[str(item.id)] = available
 
     if request.method == 'POST' and form.is_valid():
         new_issue = form.save(commit=False)
 
-        # Check for existing issue with same stock_item, office and date
+        # Group by item, office, and date
         existing = Issue.objects.filter(
             stock_item=new_issue.stock_item,
             office=new_issue.office,
@@ -172,12 +174,10 @@ def issue_create(request):
             existing.quantity_issued += new_issue.quantity_issued
             existing.remarks = new_issue.remarks or existing.remarks
             existing.save()
-            messages.info(request, "Updated existing issue entry.")
         else:
             new_issue.save()
-            messages.success(request, "New issue recorded.")
 
-        return redirect('issue_create')  # or wherever your issue view is
+        return redirect('issue_create')
 
     return render(request, 'store/issue_form.html', {
         'form': form,
