@@ -2,69 +2,33 @@
 {% block title %}Stock List{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">Purchased Stock</h2>
-
-    <div class="text-end mb-3">
-        <a href="{% url 'stock_create' %}" class="btn btn-primary">+ Add Stock Item</a>
-    </div>
+    <h2 class="mb-4 text-center">Stock Entries</h2>
 
     <table class="table table-bordered text-center">
         <thead class="table-dark">
             <tr>
-                <th>Name</th>
-                <th>Vendor</th>
-                <th>Quantity Purchased</th>
+                <th>Item</th>
+                <th>Voucher No</th>
+                <th>Quantity</th>
                 <th>Unit Price</th>
                 <th>Total Price</th>
-                <th>Purchase Date</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in items %}
+            {% for entry in grouped_receipts %}
             <tr>
-                {% with item.receipt_set.last as last_receipt %}
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.vendor.name }}</td>
-                    <td>
-                        {% if last_receipt %}
-                            {{ last_receipt.quantity_received }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if last_receipt %}
-                            {{ last_receipt.unit_price }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if last_receipt %}
-                            {{ last_receipt.total_price }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if last_receipt %}
-                            {{ last_receipt.date_received|date:"Y-m-d" }}
-                        {% else %}
-                            N/A
-                        {% endif %}
-                    </td>
-                {% endwith %}
+                <td>{{ entry.stock_item__name }}</td>
+                <td>{{ entry.voucher_number }}</td>
+                <td>{{ entry.total_quantity }}</td>
+                <td>{{ entry.unit_price|floatformat:2 }}</td>
+                <td>{{ entry.total_price|floatformat:2 }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-muted">No stock purchases found.</td>
+                <td colspan="5">No stock entries found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <div class="text-center mt-4">
-        <a href="{% url 'report_search' %}" class="btn btn-secondary">Search & Export Report</a>
-    </div>
 </div>
 {% endblock %}

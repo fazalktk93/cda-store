@@ -89,8 +89,20 @@ def vendor_detail(request, vendor_id):
 # Stock CRUD
 @login_required
 def stock_list(request):
-    items = StockItem.objects.all()
-    return render(request, 'store/stock_list.html', {'items': items})
+    grouped_receipts = (
+        Receipt.objects
+        .values('stock_item__name', 'voucher_number')  # Grouping keys
+        .annotate(
+            total_quantity=Sum('quantity_received'),
+            unit_price=Avg('unit_price'),  # Assumes price is the same
+            total_price=Sum(F('quantity_received') * F('unit_price'))
+        )
+        .order_by('-voucher_number')
+    )
+
+    return render(request, 'store/stock_list.html', {
+        'grouped_receipts': grouped_receipts
+    })
 
 @login_required
 def stock_create(request):
