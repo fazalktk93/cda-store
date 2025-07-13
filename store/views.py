@@ -150,26 +150,39 @@ def stock_create(request):
 @login_required
 def issue_create(request):
     form = IssueForm(request.POST or None)
-    stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
+    recent_issues = Issue.objects.select_related('stock_item', 'office').order_by('-date_issued')[:10]
+
+    # stock quantities for client-side display
+    stock_data = {
+        str(item.id): item.total_quantity_available()  # Assuming a helper method
+        for item in StockItem.objects.all()
+    }
 
     if request.method == 'POST' and form.is_valid():
-        issue = form.save(commit=False)
-        stock_item = issue.stock_item
-        quantity_issued = issue.quantity_issued
+        new_issue = form.save(commit=False)
 
-        if stock_item.quantity >= quantity_issued:
-            stock_item.quantity -= quantity_issued
-            stock_item.save()
-            issue.save()
-            form = IssueForm()  # Clear the form
+        # Check for existing issue with same stock_item, office and date
+        existing = Issue.objects.filter(
+            stock_item=new_issue.stock_item,
+            office=new_issue.office,
+            date_issued=new_issue.date_issued
+        ).first()
+
+        if existing:
+            existing.quantity_issued += new_issue.quantity_issued
+            existing.remarks = new_issue.remarks or existing.remarks
+            existing.save()
+            messages.info(request, "Updated existing issue entry.")
         else:
-            form.add_error('quantity_issued', 'Not enough quantity in stock.')
+            new_issue.save()
+            messages.success(request, "New issue recorded.")
 
-    recent_issues = Issue.objects.order_by('-date_issued')[:5]
+        return redirect('issue_create')  # or wherever your issue view is
+
     return render(request, 'store/issue_form.html', {
         'form': form,
+        'recent_issues': recent_issues,
         'stock_data_json': json.dumps(stock_data),
-        'recent_issues': recent_issues
     })
 
 # PDF Report
