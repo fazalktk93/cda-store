@@ -26,6 +26,13 @@ class StockItem(models.Model):
     def save(self, *args, **kwargs):
         self.total_price = self.purchase_price * self.quantity
         super().save(*args, **kwargs)
+    
+    def total_quantity_available(self):
+        total_received = self.receipt_set.aggregate(qty=Sum('quantity_received'))['qty'] or 0
+        total_issued = self.issue_set.aggregate(qty=Sum('quantity_issued'))['qty'] or 0
+        return total_received - total_issued
+    
+
 
 class Issue(models.Model):
     stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
