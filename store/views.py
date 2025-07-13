@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
 from django.template.loader import get_template
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.dateparse import parse_date
 import json
 import io
 from xhtml2pdf import pisa
@@ -46,6 +47,35 @@ def vendor_create(request):
         return redirect('vendor_list')
     return render(request, 'store/vendor_form.html', {'form': form})
 
+@login_required
+def vendor_list(request):
+    query = request.GET.get('q', '')
+    vendors = Vendor.objects.all()
+    if query:
+        vendors = vendors.filter(Q(name__icontains=query) | Q(contact__icontains=query))
+    return render(request, 'store/vendor_list.html', {'vendors': vendors})
+
+
+@login_required
+def vendor_detail(request, vendor_id):
+    vendor = get_object_or_404(Vendor, id=vendor_id)
+    stock_items = StockItem.objects.filter(vendor=vendor)
+
+    # Optional date filtering
+    start_date = parse_date(request.GET.get('start'))
+    end_date = parse_date(request.GET.get('end'))
+
+    if start_date and end_date:
+        receipts = Receipt.objects.filter(stock_item__in=stock_items, date__range=(start_date, end_date))
+    else:
+        receipts = Receipt.objects.filter(stock_item__in=stock_items)
+
+    return render(request, 'store/vendor_detail.html', {
+        'vendor': vendor,
+        'receipts': receipts,
+        'start': request.GET.get('start', ''),
+        'end': request.GET.get('end', ''),
+    })
 
 # Stock CRUD
 @login_required
