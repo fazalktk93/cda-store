@@ -17,11 +17,11 @@
         <tbody>
             {% for entry in grouped_receipts %}
             <tr>
-                <td>{{ entry.stock_item__name }}</td>
-                <td>{{ entry.voucher_number }}</td>
-                <td>{{ entry.total_quantity }}</td>
-                <td>{{ entry.unit_price|floatformat:2 }}</td>
-                <td>{{ entry.total_price|floatformat:2 }}</td>
+            <td>{{ entry.stock_item__name }}</td>
+            <td>{{ entry.voucher_number }}</td>
+            <td>{{ entry.total_quantity }}</td>
+            <td>{{ entry.unit_price|floatformat:2 }}</td>
+            <td>{{ entry.total_price|floatformat:2 }}</td>
             </tr>
             {% empty %}
             <tr>

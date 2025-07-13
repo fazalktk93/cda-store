@@ -95,11 +95,14 @@ def stock_list(request):
         .values('stock_item__name', 'voucher_number')
         .annotate(
             total_quantity=Sum('quantity_received'),
-            unit_price=Avg('unit_price'),  # if all entries use same price, Avg is fine
-            total_price=Sum('total_price')  # ✅ this is the fix
+            unit_price=Avg('unit_price')  # approximate if multiple
         )
         .order_by('-voucher_number')
     )
+
+    # Manually add total_price = quantity * unit_price
+    for entry in grouped_receipts:
+        entry["total_price"] = entry["total_quantity"] * entry["unit_price"]
 
     return render(request, 'store/stock_list.html', {
         'grouped_receipts': grouped_receipts
