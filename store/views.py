@@ -149,55 +149,34 @@ def stock_create(request):
 # Issue Entry
 @login_required
 def issue_create(request):
-    form = IssueForm(request.POST or None)
-    recent_issues = Issue.objects.select_related('stock_item', 'office').order_by('-date_issued')[:10]
+    if request.method == 'POST':
+        form = IssueForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('issue_create')
+    else:
+        form = IssueForm()
 
-    # ✅ Calculate total available per StockItem
-    stock_data = {}
-    all_items = StockItem.objects.all()
-    for item in all_items:
-        received = Receipt.objects.filter(stock_item=item).aggregate(total=Sum('quantity_received'))['total'] or 0
-        issued = Issue.objects.filter(stock_item=item).aggregate(total=Sum('quantity_issued'))['total'] or 0
-        available = received - issued
-        stock_data[str(item.id)] = available
+    # Prepare data for showing live quantity left
+    stock_items = StockItem.objects.all()
+    stock_data = {
+        str(item.id): item.total_quantity_available() for item in stock_items
+    }
 
-    # ✅ Get only unique item names (manual workaround for SQLite)
-    names_seen = set()
-    unique_items = []
-    for item in all_items.order_by('name'):
-        if item.name not in names_seen:
-            unique_items.append(item)
-            names_seen.add(item.name)
+    # Group issued items by date + item + office
+    recent_issues = (
+        Issue.objects
+        .values('date_issued', 'stock_item__name', 'office__name', 'remarks')
+        .annotate(quantity_issued=Sum('quantity_issued'))
+        .order_by('-date_issued')
+    )
 
-    # ✅ Limit dropdown to unique items
-    form.fields['stock_item'].queryset = StockItem.objects.filter(id__in=[i.id for i in unique_items])
-
-    # ✅ Handle form POST
-    if request.method == 'POST' and form.is_valid():
-        new_issue = form.save(commit=False)
-
-        # Merge duplicate issue per day
-        existing = Issue.objects.filter(
-            stock_item=new_issue.stock_item,
-            office=new_issue.office,
-            date_issued=new_issue.date_issued
-        ).first()
-
-        if existing:
-            existing.quantity_issued += new_issue.quantity_issued
-            if new_issue.remarks:
-                existing.remarks = new_issue.remarks
-            existing.save()
-        else:
-            new_issue.save()
-
-        return redirect('issue_create')
-
-    return render(request, 'store/issue_form.html', {
+    context = {
         'form': form,
-        'recent_issues': recent_issues,
         'stock_data_json': json.dumps(stock_data),
-    })
+        'recent_issues': recent_issues
+    }
+    return render(request, 'store/issue_form.html', context)
 
 # PDF Report
 @login_required
