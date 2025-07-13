@@ -1,69 +1,76 @@
-{% extends 'store/base.html' %}
-{% load static %}
-
+{% extends "store/base.html" %}
+{% load widget_tweaks %}
+{% block title %}Issue Stock{% endblock %}
 {% block content %}
-<h2>Issue Stock</h2>
 
-<form method="post">
-    {% csrf_token %}
-    
-    <div class="form-group">
-        <label for="id_stock_item">Stock item:</label>
-        {{ form.stock_item }}
-        <span id="remainingQtyLabel" style="margin-left: 10px; font-weight: bold;"></span>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+            <h2 class="mb-4 text-center">Issue Stock</h2>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.stock_item.id_for_label }}" class="form-label">Stock Item</label>
+                    {{ form.stock_item|add_class:"form-select" }}
+                    <span id="remainingQtyLabel" class="ms-2 fw-bold text-muted small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.office.id_for_label }}" class="form-label">Office</label>
+                    {{ form.office|add_class:"form-select" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.quantity_issued.id_for_label }}" class="form-label">Quantity Issued</label>
+                    {{ form.quantity_issued|add_class:"form-control" }}
+                    <span id="updatedQtyLabel" class="ms-2 fw-bold small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.remarks.id_for_label }}" class="form-label">Remarks</label>
+                    {{ form.remarks|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.date_issued.id_for_label }}" class="form-label">Date Issued</label>
+                    {{ form.date_issued|add_class:"form-control" }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Save</button>
+            </form>
+
+            <hr class="my-4">
+
+            <h4 class="text-center">Recently Issued Items</h4>
+            <table class="table table-bordered table-striped mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Item</th>
+                        <th>Issued To</th>
+                        <th>Quantity</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in recent_issues %}
+                    <tr>
+                        <td>{{ issue.date_issued }}</td>
+                        <td>{{ issue.stock_item.name }}</td>
+                        <td>{{ issue.office.name }}</td>
+                        <td>{{ issue.quantity_issued }}</td>
+                        <td>{{ issue.remarks }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5">No issues yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="id_office">Office:</label>
-        {{ form.office }}
-    </div>
-
-    <div class="form-group">
-        <label for="id_quantity_issued">Quantity issued:</label>
-        {{ form.quantity_issued }}
-        <span id="updatedQtyLabel" style="margin-left: 10px; font-weight: bold;"></span>
-    </div>
-
-    <div class="form-group">
-        <label for="id_remarks">Remarks:</label>
-        {{ form.remarks }}
-    </div>
-
-    <div class="form-group">
-        <label for="id_date_issued">Date issued:</label>
-        {{ form.date_issued }}
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
-
-<hr>
-
-<h4>Recently Issued Items</h4>
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Item</th>
-            <th>Issued To</th>
-            <th>Quantity</th>
-            <th>Remarks</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for issue in recent_issues %}
-        <tr>
-            <td>{{ issue.date_issued }}</td>
-            <td>{{ issue.stock_item.name }}</td>
-            <td>{{ issue.office.name }}</td>
-            <td>{{ issue.quantity_issued }}</td>
-            <td>{{ issue.remarks }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5">No issues yet.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+</div>
 
 <script>
     const stockData = {{ stock_data_json|safe }};
