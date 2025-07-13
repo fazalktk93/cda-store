@@ -124,7 +124,6 @@ def stock_create(request):
             stock_item=stock_item,
             quantity_received=stock_item.quantity,
             unit_price=stock_item.purchase_price,
-            source='Initial Stock Entry',
             date_received=date.today(),  # ✅ No timezone
             voucher_number=voucher_number
         )
