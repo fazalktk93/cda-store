@@ -44,7 +44,8 @@ class Receipt(models.Model):
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     date_received = models.DateField()
-    voucher_number = models.CharField(max_length=50)
+    voucher_number = models.CharField(max_length=50, default='', blank=True)
+
 
     @property
     def total_price(self):
