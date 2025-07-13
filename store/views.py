@@ -14,6 +14,7 @@ from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm
 from .forms import ReportSearchForm
 from datetime import datetime
+from django.db.models import Sum, Avg, F
 
 
 # Dashboard
