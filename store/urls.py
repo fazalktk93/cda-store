@@ -20,5 +20,6 @@ urlpatterns = [
     path('report/form/', report_form_view, name='report_form'),
     path('report/pdf/', views.report_pdf, name='report_pdf'),
     path('report/search/', report_search, name='report_search'),
+    path('report/export/pdf/', views.export_pdf, name='export_pdf'),
     path('accounts/', include('django.contrib.auth.urls')),  # login/logout
 ]

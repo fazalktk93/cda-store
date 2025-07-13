@@ -282,6 +282,42 @@ def report_view(request):
         'show_office': show_office,
     })
 
+@login_required
+def export_pdf(request):
+    from .models import Issue
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    office_id = request.GET.get('office')
+    query = request.GET.get('query', '')
+
+    issues = Issue.objects.select_related('stock_item', 'office')
+
+    if start_date:
+        issues = issues.filter(date_issued__gte=start_date)
+    if end_date:
+        issues = issues.filter(date_issued__lte=end_date)
+    if office_id:
+        issues = issues.filter(office_id=office_id)
+    if query:
+        issues = issues.filter(stock_item__name__icontains=query)
+
+    grouped = (
+        issues.values('office__name', 'stock_item__name')
+        .annotate(total_quantity=Sum('quantity_issued'))
+        .order_by('office__name', 'stock_item__name')
+    )
+
+    template = get_template('store/pdf_template.html')
+    html = template.render({'report': grouped})
+    
+    result = io.BytesIO()
+    pisa.CreatePDF(io.BytesIO(html.encode("UTF-8")), dest=result)
+
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="issue_report.pdf"'
+    return response
+
 # ✅ Office Management Views
 class OfficeListView(ListView):
     model = Office

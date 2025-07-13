@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h2>Issue Report Summary</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Office</th>
+                <th>Item</th>
+                <th>Total Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in report %}
+            <tr>
+                <td>{{ entry.office__name }}</td>
+                <td>{{ entry.stock_item__name }}</td>
+                <td>{{ entry.total_quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
