@@ -145,6 +145,16 @@ def stock_create(request):
 
     return render(request, 'store/stock_form.html', {'form': form})
 
+@login_required
+def issue_list(request):
+    recent_issues = (
+        Issue.objects
+        .order_by('-date_issued')
+        .distinct('date_issued', 'stock_item', 'office')  # deduplicate
+    )
+    return render(request, 'store/issue_list.html', {
+        'recent_issues': recent_issues
+    })
 
 # Issue Entry
 @login_required

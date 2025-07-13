@@ -1,0 +1,58 @@
+{% extends "store/base.html" %}
+{% block title %}Issued Stock{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Recently Issued Items</h2>
+
+    <!-- Add Issue Button -->
+    <div class="text-end mb-3">
+        <a href="{% url 'issue_create' %}" class="btn btn-primary">+ Issue Stock</a>
+    </div>
+
+    <table class="table table-bordered text-center" id="issueTable">
+        <thead class="table-light">
+            <tr>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(0)" placeholder="Search Date"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(1)" placeholder="Search Item"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(2)" placeholder="Search Office"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(3)" placeholder="Search Quantity"></th>
+                <th><input type="text" class="form-control form-control-sm" onkeyup="filterTable(4)" placeholder="Search Remarks"></th>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <th>Item</th>
+                <th>Issued To</th>
+                <th>Quantity</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in recent_issues %}
+            <tr>
+                <td>{{ issue.date_issued }}</td>
+                <td>{{ issue.stock_item.name }}</td>
+                <td>{{ issue.office.name }}</td>
+                <td>{{ issue.quantity_issued }}</td>
+                <td>{{ issue.remarks }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No issues yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function filterTable(colIndex) {
+    const input = document.querySelectorAll("thead input")[colIndex];
+    const filter = input.value.toUpperCase();
+    const rows = document.querySelector("#issueTable tbody").getElementsByTagName("tr");
+
+    for (let row of rows) {
+        const cell = row.getElementsByTagName("td")[colIndex];
+        const text = cell?.textContent || cell?.innerText || "";
+        row.style.display = text.toUpperCase().includes(filter) ? "" : "none";
+    }
+}
+</script>
+{% endblock %}
