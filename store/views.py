@@ -210,67 +210,48 @@ def report_pdf(request):
 
 @login_required
 def report_search(request):
-    query = request.GET.get("q", "")
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
-    include_issues = request.GET.get("include_issues") == "on"
-    include_purchases = request.GET.get("include_purchases") == "on"
-    show_vendor = request.GET.get("show_vendor") == "on"
-    show_office = request.GET.get("show_office") == "on"
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    query = request.GET.get('query', '').strip()
 
-    results = []
+    include_issues = 'include_issues' in request.GET
+    include_purchases = 'include_purchases' in request.GET
 
-    items = StockItem.objects.filter(name__icontains=query)
+    purchases = []
+    issues = []
 
-    for item in items:
-        row = {
-            'name': item.name,
-            'unit': item.unit,
-            'price': item.purchase_price,
-            'quantity': item.quantity,
-        }
+    if include_purchases:
+        purchases = Receipt.objects.all()
+        if start_date:
+            purchases = purchases.filter(date_received__gte=start_date)
+        if end_date:
+            purchases = purchases.filter(date_received__lte=end_date)
+        if query:
+            purchases = purchases.filter(
+                Q(stock_item__name__icontains=query) |
+                Q(stock_item__vendor__name__icontains=query)
+            )
 
-        if show_vendor and item.vendor:
-            row['vendor'] = item.vendor.name
-        else:
-            row['vendor'] = ''
+    if include_issues:
+        issues = Issue.objects.all()
+        if start_date:
+            issues = issues.filter(date_issued__gte=start_date)
+        if end_date:
+            issues = issues.filter(date_issued__lte=end_date)
+        if query:
+            issues = issues.filter(
+                Q(stock_item__name__icontains=query) |
+                Q(office__name__icontains=query)
+            )
 
-        if include_purchases:
-            receipts = item.receipt_set.all()
-            if start_date:
-                receipts = receipts.filter(date_received__gte=start_date)
-            if end_date:
-                receipts = receipts.filter(date_received__lte=end_date)
-            for receipt in receipts:
-                row_copy = row.copy()
-                row_copy['quantity'] = receipt.quantity_received
-                row_copy['date'] = receipt.date_received
-                row_copy['type'] = 'Purchase'
-                row_copy['office'] = ''
-                results.append(row_copy)
+    context = {
+        'purchases': purchases,
+        'issues': issues,
+        'show_vendor': 'show_vendor' in request.GET,
+        'show_office': 'show_office' in request.GET,
+    }
 
-        if include_issues:
-            issues = item.issue_set.all()
-            if start_date:
-                issues = issues.filter(date_issued__gte=start_date)
-            if end_date:
-                issues = issues.filter(date_issued__lte=end_date)
-            for issue in issues:
-                row_copy = row.copy()
-                row_copy['quantity'] = issue.quantity_issued
-                row_copy['date'] = issue.date_issued
-                row_copy['type'] = 'Issue'
-                if show_office and issue.office:
-                    row_copy['office'] = issue.office.name
-                else:
-                    row_copy['office'] = ''
-                results.append(row_copy)
-
-    return render(request, 'store/report_result.html', {
-        'results': results,
-        'show_vendor': show_vendor,
-        'show_office': show_office
-    })
+    return render(request, 'store/report_search.html', context)
 
 @login_required
 def report_view(request):

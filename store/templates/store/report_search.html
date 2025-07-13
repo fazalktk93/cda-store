@@ -3,12 +3,46 @@
 <div class="container mt-4">
     <h2>Search & Export Report</h2>
 
-    <form method="get" class="mb-3">
-        <div class="input-group">
-            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by name or vendor">
-            <button type="submit" class="btn btn-primary">Search</button>
+<form method="get" class="row g-3">
+    <div class="col-md-3">
+        <label>Start Date</label>
+        <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+    </div>
+
+    <div class="col-md-3">
+        <label>End Date</label>
+        <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+    </div>
+
+    <div class="col-md-3">
+        <label>Item / Vendor / Office</label>
+        <input type="text" name="query" class="form-control" placeholder="Search item, vendor, office..." value="{{ request.GET.query }}">
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="include_issues" {% if request.GET.include_issues %}checked{% endif %}>
+            <label class="form-check-label">Include Issues</label>
         </div>
-    </form>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="include_purchases" {% if request.GET.include_purchases %}checked{% endif %}>
+            <label class="form-check-label">Include Purchases</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="show_vendor" {% if request.GET.show_vendor %}checked{% endif %}>
+            <label class="form-check-label">Show Vendor Info</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="show_office" {% if request.GET.show_office %}checked{% endif %}>
+            <label class="form-check-label">Show Office Info</label>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100 mt-2">Search Report</button>
+    </div>
+</form>
+
 
     <a class="btn btn-success mb-3" href="{% url 'report_pdf' %}?q={{ query }}">Export PDF</a>
 
