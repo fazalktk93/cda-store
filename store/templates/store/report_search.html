@@ -35,33 +35,53 @@
         </div>
     </form>
 
-    <!-- Report Table -->
     {% if report %}
+    <!-- Print Button -->
     <div class="d-flex justify-content-end mb-3">
         <button onclick="window.print()" class="btn btn-secondary">Print</button>
-        <!-- PDF Export Removed -->
     </div>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Office</th>
-                <th>Item</th>
-                <th>Total Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entry in report %}
-            <tr>
-                <td>{{ entry.office__name }}</td>
-                <td>{{ entry.stock_item__name }}</td>
-                <td>{{ entry.total_quantity }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Report Table (Print Area) -->
+    <div id="print-area">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Office</th>
+                    <th>Item</th>
+                    <th>Total Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in report %}
+                <tr>
+                    <td>{{ entry.office__name }}</td>
+                    <td>{{ entry.stock_item__name }}</td>
+                    <td>{{ entry.total_quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
         <div class="alert alert-warning text-center">No matching results found.</div>
     {% endif %}
 </div>
+
+<!-- Print-Only CSS -->
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}
