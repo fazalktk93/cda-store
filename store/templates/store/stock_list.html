@@ -13,7 +13,6 @@
             <tr>
                 <th>Name</th>
                 <th>Vendor</th>
-                <th>Unit (e.g., pcs, kg)</th>
                 <th>Quantity Purchased</th>
                 <th>Unit Price</th>
                 <th>Total Price</th>
@@ -26,7 +25,6 @@
                 {% with item.receipt_set.last as last_receipt %}
                     <td>{{ item.name }}</td>
                     <td>{{ item.vendor.name }}</td>
-                    <td>{{ item.unit }}</td>
                     <td>
                         {% if last_receipt %}
                             {{ last_receipt.quantity_received }}

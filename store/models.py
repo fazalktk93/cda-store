@@ -17,16 +17,14 @@ class Vendor(models.Model):
 class StockItem(models.Model):
     name = models.CharField(max_length=200)
     vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE)
-    unit = models.CharField(max_length=50)
+    # REMOVE this line:
+    # unit = models.CharField(max_length=50)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
-    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)  # ✅ Real DB field
-
-    def __str__(self):
-        return self.name
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        self.total_price = self.purchase_price * self.quantity  # ✅ Auto-calculate
+        self.total_price = self.purchase_price * self.quantity
         super().save(*args, **kwargs)
 
 class Issue(models.Model):
