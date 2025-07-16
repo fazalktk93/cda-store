@@ -1,43 +1,56 @@
 {% extends "store/base.html" %}
 {% block title %}Issue Stock to {{ office.name }}{% endblock %}
-{% if messages %}
-{% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-{% endfor %}
-{% endif %}
-{% block content %}
-<div class="container">
-    <h2 class="mb-4">Issue Stock to Office: {{ office.name }}</h2>
 
-    <form method="post">
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Issue Stock to Office: <strong>{{ office.name }}</strong></h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
         {% csrf_token %}
         {{ formset.management_form }}
-        <div class="mb-3">
-        <label for="{{ formset.forms.0.date_issued.id_for_label }}">Date Issued</label>
-        {{ formset.forms.0.date_issued }}
-        {{ formset.forms.0.date_issued.errors }}
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="{{ formset.forms.0.date_issued.id_for_label }}" class="form-label">Date Issued</label>
+                {{ formset.forms.0.date_issued }}
+                <div class="form-text text-danger">{{ formset.forms.0.date_issued.errors }}</div>
+            </div>
         </div>
+
         <div class="table-responsive">
             <table class="table table-bordered align-middle" id="form-table">
-                <thead class="table-light">
+                <thead class="table-light text-center">
                     <tr>
                         <th>Item</th>
-                        <th>Quantity</th>
+                        <th style="width: 140px;">Quantity</th>
                         <th>Remarks</th>
-                        <th></th>
+                        <th style="width: 50px;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for form in formset %}
-                    <tr class="form-row">
+                    <tr class="form-row align-middle">
                         <td>
-                            {{ form.stock_item }}
+                            {{ form.stock_item|add_class:"form-select" }}
                             <div><small class="text-muted remaining-label"></small></div>
+                            {{ form.stock_item.errors }}
                         </td>
-                        <td>{{ form.quantity_issued }}</td>
-                        <td>{{ form.remarks }}</td>
                         <td>
-                            <button type="button" class="btn btn-danger remove-row">×</button>
+                            {{ form.quantity_issued|add_class:"form-control text-center" }}
+                            {{ form.quantity_issued.errors }}
+                        </td>
+                        <td>
+                            {{ form.remarks|add_class:"form-control" }}
+                            {{ form.remarks.errors }}
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-danger remove-row">×</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -45,13 +58,19 @@
             </table>
         </div>
 
-        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
-        <br><br>
-        <button type="submit" class="btn btn-success">Issue Stock</button>
-        <a href="{% url 'office_detail' office.id %}" class="btn btn-secondary">Back to Office</a>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+            <div>
+                <button type="submit" class="btn btn-success">Issue Stock</button>
+                <a href="{% url 'office_detail' office.id %}" class="btn btn-secondary">Back to Office</a>
+            </div>
+        </div>
     </form>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
     const stockData = {{ stock_data|safe }};
 
@@ -67,12 +86,10 @@
 
     function bindSelectChange(select) {
         select.addEventListener('change', () => updateRemaining(select));
-        updateRemaining(select);  // initialize
+        updateRemaining(select);
     }
 
-    document.querySelectorAll('select[name$="-stock_item"]').forEach(select => {
-        bindSelectChange(select);
-    });
+    document.querySelectorAll('select[name$="-stock_item"]').forEach(bindSelectChange);
 
     const addRowBtn = document.getElementById('add-row');
     const formTable = document.getElementById('form-table').querySelector('tbody');
@@ -84,14 +101,11 @@
         const newRow = firstRow.cloneNode(true);
 
         newRow.querySelectorAll('input, select, textarea').forEach(input => {
-            const nameAttr = input.name;
-            const idAttr = input.id;
-
-            if (nameAttr) {
-                input.name = nameAttr.replace(/form-\d+-/, `form-${formIdx}-`);
+            if (input.name) {
+                input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
             }
-            if (idAttr) {
-                input.id = idAttr.replace(/form-\d+-/, `form-${formIdx}-`);
+            if (input.id) {
+                input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
             }
 
             if (input.tagName === 'SELECT') {
@@ -101,13 +115,8 @@
             }
         });
 
-        // Reset remaining label
         newRow.querySelector('.remaining-label').textContent = '';
-
-        // Re-bind select change event
-        const newSelect = newRow.querySelector('select[name$="-stock_item"]');
-        bindSelectChange(newSelect);
-
+        bindSelectChange(newRow.querySelector('select[name$="-stock_item"]'));
         formTable.appendChild(newRow);
         totalForms.value = formIdx + 1;
     });
