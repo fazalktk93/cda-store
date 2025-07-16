@@ -13,17 +13,23 @@
     </div>
 
     <!-- 🔍 Date Filter -->
-    <form method="get" class="row g-2 mb-4">
+    {% if request.GET.search %}
+    <form method="get" class="row g-3 mb-4">
+        <input type="hidden" name="search" value="true">
         <div class="col-md-4">
+            <label>Start Date</label>
             <input type="date" name="start" class="form-control" value="{{ request.GET.start }}">
         </div>
         <div class="col-md-4">
+            <label>End Date</label>
             <input type="date" name="end" class="form-control" value="{{ request.GET.end }}">
         </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-secondary">Filter</button>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Filter</button>
         </div>
     </form>
+    {% endif %}
+
 
     <!-- 📦 Voucher Items Table -->
     <div class="card">
