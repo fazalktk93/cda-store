@@ -36,6 +36,11 @@
     </form>
     {% endif %}
 
+<!-- ➕ Add stock -->
+<div class="mt-4 mb-5">
+    <a href="{% url 'add_vendor_stock' vendor.id %}" class="btn btn-primary">➕ Add Stock Items</a>
+</div>
+
     <!-- 📄 Items Table -->
     <div class="card">
         <div class="card-body p-3">
