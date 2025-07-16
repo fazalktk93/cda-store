@@ -90,47 +90,47 @@ def add_vendor_stock(request, vendor_id):
     return render(request, 'store/add_vendor_stock.html', {'formset': formset, 'vendor': vendor})
 
 # ---------------- Stock Views ----------------
-@login_required
-def stock_list(request):
-    receipts = Receipt.objects.select_related('stock_item', 'stock_item__vendor').order_by('-date_received')
-    grouped = defaultdict(list)
-    for r in receipts:
-        key = (r.voucher_number, r.stock_item.name)
-        grouped[key].append(r)
+# @login_required
+# def stock_list(request):
+#     receipts = Receipt.objects.select_related('stock_item', 'stock_item__vendor').order_by('-date_received')
+#     grouped = defaultdict(list)
+#     for r in receipts:
+#         key = (r.voucher_number, r.stock_item.name)
+#         grouped[key].append(r)
 
-    grouped_receipts = []
-    for (voucher_number, item_name), items in grouped.items():
-        grouped_receipts.append({
-            'voucher_number': voucher_number,
-            'item_name': item_name,
-            'vendor_name': items[0].stock_item.vendor.name,
-            'total_quantity': sum(r.quantity_received for r in items),
-            'unit_price': items[0].unit_price,
-            'total_price': sum(r.quantity_received * r.unit_price for r in items),
-            'date_received': items[0].date_received,
-        })
+#     grouped_receipts = []
+#     for (voucher_number, item_name), items in grouped.items():
+#         grouped_receipts.append({
+#             'voucher_number': voucher_number,
+#             'item_name': item_name,
+#             'vendor_name': items[0].stock_item.vendor.name,
+#             'total_quantity': sum(r.quantity_received for r in items),
+#             'unit_price': items[0].unit_price,
+#             'total_price': sum(r.quantity_received * r.unit_price for r in items),
+#             'date_received': items[0].date_received,
+#         })
 
-    return render(request, 'store/stock_list.html', {'grouped_receipts': grouped_receipts})
+#     return render(request, 'store/stock_list.html', {'grouped_receipts': grouped_receipts})
 
-@login_required
-def stock_create(request):
-    form = StockItemForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        stock_item = form.save()
-        voucher_number = request.POST.get('voucher_number', '').strip()
-        if not voucher_number:
-            form.add_error(None, "Voucher number is required.")
-            return render(request, 'store/stock_form.html', {'form': form})
+# @login_required
+# def stock_create(request):
+#     form = StockItemForm(request.POST or None)
+#     if request.method == 'POST' and form.is_valid():
+#         stock_item = form.save()
+#         voucher_number = request.POST.get('voucher_number', '').strip()
+#         if not voucher_number:
+#             form.add_error(None, "Voucher number is required.")
+#             return render(request, 'store/stock_form.html', {'form': form})
 
-        Receipt.objects.create(
-            stock_item=stock_item,
-            quantity_received=stock_item.quantity,
-            unit_price=stock_item.purchase_price,
-            date_received=date.today(),
-            voucher_number=voucher_number
-        )
-        return redirect('stock_list')
-    return render(request, 'store/stock_form.html', {'form': form})
+#         Receipt.objects.create(
+#             stock_item=stock_item,
+#             quantity_received=stock_item.quantity,
+#             unit_price=stock_item.purchase_price,
+#             date_received=date.today(),
+#             voucher_number=voucher_number
+#         )
+#         return redirect('stock_list')
+#     return render(request, 'store/stock_form.html', {'form': form})
 
 # ---------------- Issue Views ----------------
 @login_required
