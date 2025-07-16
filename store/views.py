@@ -11,6 +11,7 @@ from collections import defaultdict
 from datetime import date
 import json, io
 from xhtml2pdf import pisa
+from decimal import Decimal
 
 from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm, ReportSearchForm
