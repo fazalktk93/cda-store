@@ -9,19 +9,17 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <!-- Voucher Info -->
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="form-label">Voucher Number</label>
+                <label for="voucher_number" class="form-label">Voucher Number</label>
                 <input type="text" name="voucher_number" class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label class="form-label">Voucher Date</label>
+                <label for="voucher_date" class="form-label">Voucher Date</label>
                 <input type="date" name="voucher_date" class="form-control" required>
             </div>
         </div>
 
-        <!-- Table -->
         <div class="table-responsive">
             <table class="table table-bordered" id="form-table">
                 <thead class="table-light text-center">
@@ -33,28 +31,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for form in formset %}
+                    <!-- Start with one row from empty_form -->
                     <tr class="form-row">
-                        {{ form.id }}
-                        <td>{{ form.stock_item }}</td>
-                        <td>{{ form.purchase_price }}</td>
-                        <td>{{ form.quantity }}</td>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+                        {{ formset.empty_form.id }}
+                        <td>{{ formset.empty_form.stock_item }}</td>
+                        <td>{{ formset.empty_form.purchase_price }}</td>
+                        <td>{{ formset.empty_form.quantity }}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove-row">×</button>
+                        </td>
                     </tr>
-                    {% endfor %}
                 </tbody>
             </table>
 
-            <!-- Hidden row for JS cloning -->
-            <table style="display: none;">
-                <tr id="empty-form" class="form-row">
+            <!-- Clone source (hidden) -->
+            <template id="empty-form-template">
+                <tr class="form-row">
                     {{ formset.empty_form.id }}
                     <td>{{ formset.empty_form.stock_item }}</td>
                     <td>{{ formset.empty_form.purchase_price }}</td>
                     <td>{{ formset.empty_form.quantity }}</td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-row">×</button>
+                    </td>
                 </tr>
-            </table>
+            </template>
         </div>
 
         <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
@@ -68,28 +69,26 @@
 {% block extra_js %}
 <script>
     const addRowBtn = document.getElementById('add-row');
-    const formTable = document.querySelector('#form-table tbody');
+    const tableBody = document.querySelector('#form-table tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-    const emptyFormTemplate = document.getElementById('empty-form');
+    const emptyFormTemplate = document.getElementById('empty-form-template').content;
 
     addRowBtn.addEventListener('click', () => {
-        const formIdx = parseInt(totalForms.value);
-        const newRow = emptyFormTemplate.cloneNode(true);
-        newRow.style.display = '';
-        newRow.id = '';  // Remove duplicate ID
+        const formIndex = parseInt(totalForms.value);
+        const newForm = emptyFormTemplate.cloneNode(true);
 
-        newRow.querySelectorAll('input, select').forEach(el => {
-            if (el.name) el.name = el.name.replace(/__prefix__/, formIdx);
-            if (el.id) el.id = el.id.replace(/__prefix__/, formIdx);
+        newForm.querySelectorAll('input, select').forEach(el => {
+            if (el.name) el.name = el.name.replace(/__prefix__/, formIndex);
+            if (el.id) el.id = el.id.replace(/__prefix__/, formIndex);
             if (el.tagName === 'SELECT') el.selectedIndex = 0;
             else el.value = '';
         });
 
-        totalForms.value = formIdx + 1;
-        formTable.appendChild(newRow);
+        totalForms.value = formIndex + 1;
+        tableBody.appendChild(newForm);
     });
 
-    document.addEventListener('click', e => {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
             const allRows = document.querySelectorAll('#form-table .form-row');
