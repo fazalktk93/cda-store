@@ -1,50 +1,29 @@
 {% extends "store/base.html" %}
-{% block title %}Vendor Details{% endblock %}
+{% block title %}Vendors{% endblock %}
 
 {% block content %}
-<h2>{{ vendor.name }}</h2>
-<p><strong>Contact:</strong> {{ vendor.contact }}</p>
+<h2>Vendors</h2>
+<a href="{% url 'vendor_create' %}" class="btn btn-success mb-3">➕ Add Vendor</a>
 
-<!-- ➕ Add Stock -->
-<div class="mt-4 mb-3">
-    {% if vendor.id %}
-        <a href="{% url 'add_vendor_stock' vendor.id %}" class="btn btn-primary">➕ Add Stock Items</a>
-    {% else %}
-        <span class="text-muted">Cannot add stock — missing vendor ID</span>
-{% endif %}
-</div>
-
-<!-- 🧾 Voucher Summary Table -->
-<h4 class="mt-4">Vouchers</h4>
-<table class="table table-striped table-bordered">
-    <thead class="table-light">
+<table class="table table-striped">
+    <thead>
         <tr>
-            <th>Voucher #</th>
-            <th>Date</th>
-            <th>Total Items</th>
-            <th>Total Cost</th>
+            <th>Name</th>
+            <th>Contact</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for voucher in vouchers %}
+        {% for vendor in vendors %}
         <tr>
-            <td>{{ voucher.voucher_number }}</td>
-            <td>{{ voucher.date }}</td>
-            <td>{{ voucher.total_items }}</td>
-            <td>{{ voucher.total_price }}</td>
+            <td>{{ vendor.name }}</td>
+            <td>{{ vendor.contact }}</td>
             <td>
-                {% if voucher.voucher_number %}
-                    <a href="{% url 'voucher_detail' voucher.voucher_number %}" class="btn btn-sm btn-info">View</a>
-                    <a href="{% url 'voucher_detail' voucher.voucher_number %}?search=true" class="btn btn-sm btn-warning">Search</a>
-                    <a href="{% url 'voucher_print' voucher.voucher_number %}" class="btn btn-sm btn-secondary">Print</a>
-                {% else %}
-                    <span class="text-muted">No Voucher #</span>
-                {% endif %}
+                <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-sm btn-info">View</a>
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="5">No vouchers found.</td></tr>
+        <tr><td colspan="3">No vendors found.</td></tr>
         {% endfor %}
     </tbody>
 </table>
