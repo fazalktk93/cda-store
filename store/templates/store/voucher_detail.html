@@ -40,7 +40,7 @@
                             <td>{{ receipt.unit_price|floatformat:2 }}</td>
                             <td>
                                 {% with line_total=receipt.quantity_received|floatformat:"2"|floatformat:"2"|floatformat:"2"|add:"0"|floatformat:"2"|floatformat:"2" %}
-                                    {{ receipt.quantity_received|floatformat:"2"|floatformat:"2"|floatformat:"2"|add:"0"|floatformat:"2"|floatformat:"2"|floatformat:"2" }}
+                                    {{ line_total }}
                                 {% endwith %}
                             </td>
                         </tr>
