@@ -41,21 +41,23 @@
                         <td>{{ form.quantity }}</td>
                         <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
                     </tr>
-                    {% empty %}
-                    <!-- fallback row if no formset rows -->
-                    <tr class="form-row">
-                        {{ formset.empty_form.id }}
-                        <td>{{ formset.empty_form.stock_item }}</td>
-                        <td>{{ formset.empty_form.purchase_price }}</td>
-                        <td>{{ formset.empty_form.quantity }}</td>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
-                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
+            <!-- Hidden row for JS cloning -->
+            <table style="display: none;">
+                <tr id="empty-form" class="form-row">
+                    {{ formset.empty_form.id }}
+                    <td>{{ formset.empty_form.stock_item }}</td>
+                    <td>{{ formset.empty_form.purchase_price }}</td>
+                    <td>{{ formset.empty_form.quantity }}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+                </tr>
+            </table>
         </div>
 
-        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+        <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
         <br><br>
         <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
@@ -68,15 +70,17 @@
     const addRowBtn = document.getElementById('add-row');
     const formTable = document.querySelector('#form-table tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+    const emptyFormTemplate = document.getElementById('empty-form');
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const newRow = formTable.querySelector('.form-row').cloneNode(true);
+        const newRow = emptyFormTemplate.cloneNode(true);
+        newRow.style.display = '';
+        newRow.id = '';  // Remove duplicate ID
 
-        // Update input names and IDs
         newRow.querySelectorAll('input, select').forEach(el => {
-            if (el.name) el.name = el.name.replace(/form-(\d+)-/, `form-${formIdx}-`);
-            if (el.id) el.id = el.id.replace(/form-(\d+)-/, `form-${formIdx}-`);
+            if (el.name) el.name = el.name.replace(/__prefix__/, formIdx);
+            if (el.id) el.id = el.id.replace(/__prefix__/, formIdx);
             if (el.tagName === 'SELECT') el.selectedIndex = 0;
             else el.value = '';
         });
@@ -88,7 +92,7 @@
     document.addEventListener('click', e => {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
-            const allRows = document.querySelectorAll('.form-row');
+            const allRows = document.querySelectorAll('#form-table .form-row');
             if (allRows.length > 1) {
                 row.remove();
                 totalForms.value = allRows.length - 1;
