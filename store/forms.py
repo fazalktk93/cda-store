@@ -67,9 +67,12 @@ class VendorStockForm(forms.ModelForm):
     class Meta:
         model = StockItem
         fields = ['name', 'purchase_price', 'quantity']
-        widgets = {
-            'name': forms.Select(attrs={'class': 'form-select'}),
-            'purchase_price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
-        
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Populate the dropdown with all existing item names
+        self.fields['name'].queryset = StockItem.objects.all().order_by('name')
+
+        # Optional: Add CSS class for styling
+        self.fields['name'].widget.attrs.update({'class': 'form-select'})
