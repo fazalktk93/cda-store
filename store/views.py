@@ -17,6 +17,7 @@ from django.db import models
 from django.views.generic import ListView, CreateView
 from .models import StockItem
 from .forms import StockItemForm
+from .models import Vendor, StockItem
 
 from .models import Vendor, StockItem, Issue, Receipt, Office, StockItem, StockCategory
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm, ReportSearchForm
