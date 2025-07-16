@@ -22,78 +22,76 @@
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered" id="form-table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Purchase Price</th>
-                        <th>Quantity</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="form-rows">
-                    {% for form in formset %}
-                    <tr class="form-row">
-                        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-                        <td>{{ form.stock_item }}</td>
-                        <td>{{ form.purchase_price }}</td>
-                        <td>{{ form.quantity }}</td>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <table class="table" id="form-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Purchase Price</th>
+                    <th>Quantity</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="form-body">
+                {% for form in formset %}
+                <tr class="form-row">
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td>{{ form.stock_item }}</td>
+                    <td>{{ form.purchase_price }}</td>
+                    <td>{{ form.quantity }}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        <!-- Button -->
-        <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
+        <button type="button" id="add-row" class="btn btn-outline-primary">+ Add Another Item</button>
         <br><br>
         <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
 
-    <!-- Hidden Template -->
-    <template id="empty-form">
-        <tr class="form-row">
-            {{ formset.empty_form.management_form }}
-            {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
-            <td>{% filter force_escape %}{{ formset.empty_form.stock_item }}{% endfilter %}</td>
-            <td>{% filter force_escape %}{{ formset.empty_form.purchase_price }}{% endfilter %}</td>
-            <td>{% filter force_escape %}{{ formset.empty_form.quantity }}{% endfilter %}</td>
-            <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
-        </tr>
-    </template>
+    <!-- Hidden template row -->
+    <table class="d-none">
+        <tbody>
+            <tr id="empty-form-row">
+                {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+                <td>{{ formset.empty_form.stock_item }}</td>
+                <td>{{ formset.empty_form.purchase_price }}</td>
+                <td>{{ formset.empty_form.quantity }}</td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const addRowBtn = document.getElementById("add-row");
-        const formRows = document.getElementById("form-rows");
-        const totalForms = document.getElementById("id_form-TOTAL_FORMS");
-        const emptyFormTemplate = document.getElementById("empty-form").innerHTML;
+document.addEventListener('DOMContentLoaded', function () {
+    const formBody = document.getElementById("form-body");
+    const addRowBtn = document.getElementById("add-row");
+    const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+    const emptyFormRow = document.getElementById("empty-form-row");
 
-        addRowBtn.addEventListener("click", () => {
-            const formIndex = parseInt(totalForms.value);
-            const newRowHtml = emptyFormTemplate.replace(/__prefix__/g, formIndex);
-            const tempDiv = document.createElement("tbody");
-            tempDiv.innerHTML = newRowHtml.trim();
-            const newRow = tempDiv.firstElementChild;
-            formRows.appendChild(newRow);
-            totalForms.value = formIndex + 1;
-        });
+    addRowBtn.addEventListener("click", () => {
+        const newFormIdx = parseInt(totalForms.value);
+        const newRow = emptyFormRow.cloneNode(true);
+        newRow.classList.remove("d-none");
+        newRow.removeAttribute("id");
 
-        document.addEventListener("click", function (e) {
-            if (e.target.classList.contains("remove-row")) {
-                const row = e.target.closest(".form-row");
-                if (row && formRows.children.length > 1) {
-                    row.remove();
-                    totalForms.value = formRows.children.length;
-                }
-            }
-        });
+        newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, newFormIdx);
+        formBody.appendChild(newRow);
+        totalForms.value = newFormIdx + 1;
     });
+
+    formBody.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-row")) {
+            const row = e.target.closest("tr");
+            row.remove();
+            const rows = formBody.querySelectorAll(".form-row");
+            totalForms.value = rows.length;
+        }
+    });
+});
 </script>
 {% endblock %}
