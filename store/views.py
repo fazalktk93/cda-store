@@ -367,6 +367,9 @@ def add_office_issue(request, office_id):
     office = get_object_or_404(Office, id=office_id)
     IssueFormSet = modelformset_factory(Issue, form=IssueForm, extra=1)
 
+    # ✅ Always define this BEFORE the request method check
+    stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
+
     if request.method == 'POST':
         formset = IssueFormSet(request.POST)
         if formset.is_valid():
@@ -379,12 +382,10 @@ def add_office_issue(request, office_id):
     else:
         formset = IssueFormSet(queryset=Issue.objects.none())
 
-        stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
-
     return render(request, 'store/add_office_issue.html', {
         'formset': formset,
         'office': office,
-        'stock_data': stock_data,  # Pass stock data to the template
+        'stock_data': stock_data,  # ✅ Safe to access here
     })
 
 
