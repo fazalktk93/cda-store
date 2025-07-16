@@ -2,14 +2,14 @@
 {% block title %}Add Stock for {{ vendor.name }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">Add Stock for Vendor: {{ vendor.name }}</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Add Stock for Vendor: <strong>{{ vendor.name }}</strong></h2>
 
     <form method="post" id="stock-form">
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <!-- Voucher Number and Date -->
+        <!-- Voucher Number & Date -->
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="voucher_number" class="form-label">Voucher Number</label>
@@ -21,14 +21,15 @@
             </div>
         </div>
 
+        <!-- Table for Stock Items -->
         <div class="table-responsive">
             <table class="table table-bordered align-middle" id="form-table">
-                <thead class="table-light">
+                <thead class="table-light text-center">
                     <tr>
-                        <th>Item</th>
+                        <th style="width: 40%;">Item</th>
                         <th>Purchase Price</th>
                         <th>Quantity</th>
-                        <th></th>
+                        <th style="width: 50px;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,7 +39,7 @@
                         <td>{{ form.purchase_price }}</td>
                         <td>{{ form.quantity }}</td>
                         <td>
-                            <button type="button" class="btn btn-danger remove-row">×</button>
+                            <button type="button" class="btn btn-danger btn-sm remove-row">×</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -46,37 +47,36 @@
             </table>
         </div>
 
-        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+        <!-- Buttons -->
+        <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
         <br><br>
         <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
     const addRowBtn = document.getElementById('add-row');
-    const formTable = document.getElementById('form-table').getElementsByTagName('tbody')[0];
+    const formTable = document.querySelector('#form-table tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const templateRow = document.querySelector('.form-row');
-        const newRow = templateRow.cloneNode(true);
+        const firstRow = document.querySelector('.form-row');
+        const newRow = firstRow.cloneNode(true);
 
         newRow.querySelectorAll('input, select').forEach(input => {
             if (input.name) {
                 input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
                 input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
-                if (input.tagName === 'SELECT') {
-                    input.selectedIndex = 0;
-                } else {
-                    input.value = '';
-                }
+                input.value = '';  // clear existing values
             }
         });
 
-        totalForms.value = formIdx + 1;
         formTable.appendChild(newRow);
+        totalForms.value = formIdx + 1;
     });
 
     document.addEventListener('click', function (e) {

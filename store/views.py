@@ -9,6 +9,7 @@ from django.db.models import Q, Sum, F
 from django.forms import modelformset_factory
 from collections import defaultdict
 from django.views.generic import ListView
+from .forms import VendorReceiptForm
 from datetime import date
 import json, io
 from xhtml2pdf import pisa
@@ -85,7 +86,7 @@ def vendor_detail(request, vendor_id):
 @login_required
 def add_vendor_stock(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
-    StockFormSet = modelformset_factory(StockItem, form=VendorStockForm, extra=1)
+    StockFormSet = modelformset_factory(StockItem, form=VendorStockForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         formset = StockFormSet(request.POST)
@@ -95,8 +96,10 @@ def add_vendor_stock(request, vendor_id):
                 item.vendor = vendor
                 item.save()
             return redirect('vendor_detail', vendor_id=vendor.id)
+        else:
+            print("Formset errors:", formset.errors)
     else:
-        formset = StockFormSet(queryset=StockItem.objects.all())
+        formset = StockFormSet(queryset=StockItem.objects.none())
 
     return render(request, 'store/add_vendor_stock.html', {
         'formset': formset,

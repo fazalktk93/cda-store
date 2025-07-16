@@ -86,3 +86,13 @@ class ReceiptForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['stock_item'].queryset = StockItem.objects.all()
+        
+class VendorReceiptForm(forms.ModelForm):
+    class Meta:
+        model = Receipt
+        fields = ['stock_item', 'unit_price', 'quantity_received']
+        widgets = {
+            'stock_item': forms.Select(attrs={'class': 'form-select'}),
+            'unit_price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantity_received': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
