@@ -252,6 +252,10 @@ def report_form_view(request):
 @login_required
 def voucher_detail(request, voucher_number):
     receipts = Receipt.objects.filter(voucher_number=voucher_number)
+
+    for r in receipts:
+        r.total_price = r.quantity_received * r.unit_price  # 👈 Add this
+
     return render(request, 'store/voucher_detail.html', {
         'voucher_number': voucher_number,
         'receipts': receipts
