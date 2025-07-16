@@ -58,8 +58,8 @@ class Receipt(models.Model):
     date_received = models.DateField()
     voucher_number = models.CharField(max_length=50, default='', blank=True)
 
+    def save(self, *args, **kwargs):
+        self.total_price = self.unit_price * self.quantity_received
+        super().save(*args, **kwargs)
 
-    @property
-    def total_price(self):
-        return self.unit_price * self.quantity_received
 
