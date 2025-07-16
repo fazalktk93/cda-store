@@ -9,7 +9,7 @@
         {% csrf_token %}
         {{ formset.management_form }}
         <div class="mb-3">
-        {{ formset.forms.0.date_issued.label_tag }}
+        <label for="{{ formset.forms.0.date_issued.id_for_label }}">Date Issued</label>
         {{ formset.forms.0.date_issued }}
         {{ formset.forms.0.date_issued.errors }}
         </div>

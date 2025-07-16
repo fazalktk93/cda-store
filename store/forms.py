@@ -18,6 +18,12 @@ class IssueForm(forms.ModelForm):
     class Meta:
         model = Issue
         fields = ['stock_item', 'quantity_issued', 'remarks', 'date_issued']
+        widgets = {
+            'date_issued': forms.DateInput(attrs={
+                'type': 'date',             # ✅ triggers native calendar popup
+                'class': 'form-control'     # ✅ applies Bootstrap styling
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
