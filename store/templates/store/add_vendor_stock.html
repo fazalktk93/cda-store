@@ -9,56 +9,53 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <!-- Voucher Number & Date -->
+        <!-- Voucher Info -->
         <div class="row mb-3">
             <div class="col-md-6">
-                <label for="voucher_number" class="form-label">Voucher Number</label>
-                <input type="text" name="voucher_number" id="voucher_number" class="form-control" required>
+                <label class="form-label">Voucher Number</label>
+                <input type="text" name="voucher_number" class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label for="voucher_date" class="form-label">Voucher Date</label>
-                <input type="date" name="voucher_date" id="voucher_date" class="form-control" required>
+                <label class="form-label">Voucher Date</label>
+                <input type="date" name="voucher_date" class="form-control" required>
             </div>
         </div>
 
-        <!-- Table for Stock Items -->
+        <!-- Table -->
         <div class="table-responsive">
-            <table class="table table-bordered align-middle" id="form-table">
+            <table class="table table-bordered" id="form-table">
                 <thead class="table-light text-center">
                     <tr>
-                        <th style="width: 40%;">Item</th>
+                        <th>Item</th>
                         <th>Purchase Price</th>
                         <th>Quantity</th>
-                        <th style="width: 50px;"></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for form in formset %}
                     <tr class="form-row">
-                        {{ form.id }} <!-- Include hidden id field -->
-                        <td>
-                            {{ form.stock_item }}
-                            {{ form.stock_item.errors }}
-                        </td>
-                        <td>
-                            {{ form.purchase_price }}
-                            {{ form.purchase_price.errors }}
-                        </td>
-                        <td>
-                            {{ form.quantity }}
-                            {{ form.quantity.errors }}
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-danger btn-sm remove-row">×</button>
-                        </td>
+                        {{ form.id }}
+                        <td>{{ form.stock_item }}</td>
+                        <td>{{ form.purchase_price }}</td>
+                        <td>{{ form.quantity }}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+                    </tr>
+                    {% empty %}
+                    <!-- fallback row if no formset rows -->
+                    <tr class="form-row">
+                        {{ formset.empty_form.id }}
+                        <td>{{ formset.empty_form.stock_item }}</td>
+                        <td>{{ formset.empty_form.purchase_price }}</td>
+                        <td>{{ formset.empty_form.quantity }}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <!-- Buttons -->
-        <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
+        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
         <br><br>
         <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
@@ -69,38 +66,26 @@
 {% block extra_js %}
 <script>
     const addRowBtn = document.getElementById('add-row');
-    const formTable = document.getElementById('form-table').querySelector('tbody');
+    const formTable = document.querySelector('#form-table tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const newRow = formTable.querySelector('tr').cloneNode(true);
+        const newRow = formTable.querySelector('.form-row').cloneNode(true);
 
-        newRow.querySelectorAll('input, select').forEach(input => {
-            if (input.name) {
-                input.name = input.name.replace(/form-(\d+)-/, `form-${formIdx}-`);
-            }
-            if (input.id) {
-                input.id = input.id.replace(/form-(\d+)-/, `form-${formIdx}-`);
-            }
-
-            // Clear values
-            if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-            } else {
-                input.value = '';
-            }
+        // Update input names and IDs
+        newRow.querySelectorAll('input, select').forEach(el => {
+            if (el.name) el.name = el.name.replace(/form-(\d+)-/, `form-${formIdx}-`);
+            if (el.id) el.id = el.id.replace(/form-(\d+)-/, `form-${formIdx}-`);
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            else el.value = '';
         });
 
-        // Remove hidden input (e.g. id) if exists
-        const hiddenId = newRow.querySelector('input[type=hidden]');
-        if (hiddenId) hiddenId.remove();
-
-        formTable.appendChild(newRow);
         totalForms.value = formIdx + 1;
+        formTable.appendChild(newRow);
     });
 
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', e => {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
             const allRows = document.querySelectorAll('.form-row');
