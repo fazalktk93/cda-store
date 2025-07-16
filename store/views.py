@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q, Sum, F
 from django.forms import modelformset_factory
 from collections import defaultdict
+from django.views.generic import ListView
 from datetime import date
 import json, io
 from xhtml2pdf import pisa
@@ -234,6 +235,13 @@ def report_view(request):
 class OfficeListView(ListView):
     model = Office
     template_name = 'store/office_list.html'
+    context_object_name = 'object_list'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            return Office.objects.filter(name__icontains=query)
+        return Office.objects.all()
 
 class OfficeCreateView(CreateView):
     model = Office
