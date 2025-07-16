@@ -67,16 +67,25 @@
     });
 
     const addRowBtn = document.getElementById('add-row');
-    const formTable = document.getElementById('form-table').getElementsByTagName('tbody')[0];
+    const formTable = document.getElementById('form-table').querySelector('tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const emptyRow = document.querySelector('.form-row').cloneNode(true);
+        const firstRow = document.querySelector('.form-row');
+        const newRow = firstRow.cloneNode(true);
 
-        emptyRow.querySelectorAll('input, select, textarea').forEach(input => {
-            input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
-            input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
+        newRow.querySelectorAll('input, select, textarea').forEach(input => {
+            const nameAttr = input.name;
+            const idAttr = input.id;
+
+            if (nameAttr) {
+                input.name = nameAttr.replace(/form-\d+-/, `form-${formIdx}-`);
+            }
+            if (idAttr) {
+                input.id = idAttr.replace(/form-\d+-/, `form-${formIdx}-`);
+            }
+
             if (input.tagName === 'SELECT') {
                 input.selectedIndex = 0;
             } else {
@@ -84,11 +93,14 @@
             }
         });
 
-        // Clear remaining label and bind event
-        emptyRow.querySelector('.remaining-label').textContent = '';
-        bindSelectChange(emptyRow.querySelector('select[name$="-stock_item"]'));
+        // Reset remaining label
+        newRow.querySelector('.remaining-label').textContent = '';
 
-        formTable.appendChild(emptyRow);
+        // Re-bind select change event
+        const newSelect = newRow.querySelector('select[name$="-stock_item"]');
+        bindSelectChange(newSelect);
+
+        formTable.appendChild(newRow);
         totalForms.value = formIdx + 1;
     });
 
