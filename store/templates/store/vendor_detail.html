@@ -28,6 +28,7 @@
             <td>
                 {% if voucher.voucher_number %}
                     <a href="{% url 'voucher_detail' voucher.voucher_number %}" class="btn btn-sm btn-info">View</a>
+                    <a href="{% url 'voucher_detail' voucher.voucher_number %}?search=true" class="btn btn-sm btn-warning">Search</a>
                     <a href="{% url 'voucher_print' voucher.voucher_number %}" class="btn btn-sm btn-secondary">Print</a>
                 {% else %}
                     <span class="text-muted">No Voucher #</span>
