@@ -375,13 +375,18 @@ def add_office_issue(request, office_id):
 @login_required
 def issue_detail(request, date, office_id):
     office = get_object_or_404(Office, id=office_id)
-    issues = Issue.objects.filter(office=office, date_issued=date).select_related('stock_item')
+
+    grouped = (
+        Issue.objects.filter(office=office, date_issued=date)
+        .values('stock_item__name', 'remarks')
+        .annotate(total_quantity=Sum('quantity_issued'))
+        .order_by('stock_item__name')
+    )
 
     return render(request, 'store/issue_detail.html', {
         'office': office,
-        'issues': issues,
+        'issues': grouped,
         'issue_date': date,
-        'search_mode': request.GET.get("search") == "true"
     })
 
 # View: Generate PDF of issued items
