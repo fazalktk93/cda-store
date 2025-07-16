@@ -10,6 +10,7 @@ from django.forms import modelformset_factory
 from collections import defaultdict
 from django.views.generic import ListView
 from .forms import VendorReceiptForm
+from .models import VendorStock
 from datetime import date
 import json, io
 from xhtml2pdf import pisa
