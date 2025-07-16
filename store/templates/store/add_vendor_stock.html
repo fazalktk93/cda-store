@@ -7,17 +7,19 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
+        <!-- Voucher info -->
         <div class="row mb-3">
             <div class="col-md-6">
-                <label>Voucher Number</label>
+                <label for="voucher_number">Voucher Number</label>
                 <input type="text" name="voucher_number" class="form-control" required>
             </div>
             <div class="col-md-6">
-                <label>Voucher Date</label>
+                <label for="voucher_date">Voucher Date</label>
                 <input type="date" name="voucher_date" class="form-control" required>
             </div>
         </div>
 
+        <!-- Table -->
         <div class="table-responsive">
             <table class="table table-bordered" id="form-table">
                 <thead>
@@ -42,11 +44,23 @@
             </table>
         </div>
 
-        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+        <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
         <br><br>
         <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
+
+    <!-- Hidden empty form for cloning -->
+    <template id="empty-form-template">
+        <tr class="form-row">
+            {{ formset.empty_form.management_form }}
+            {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+            <td>{{ formset.empty_form.stock_item }}</td>
+            <td>{{ formset.empty_form.purchase_price }}</td>
+            <td>{{ formset.empty_form.quantity }}</td>
+            <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
+        </tr>
+    </template>
 </div>
 {% endblock %}
 
@@ -55,35 +69,24 @@
     const addRowBtn = document.getElementById("add-row");
     const tableBody = document.querySelector("#form-table tbody");
     const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+    const template = document.getElementById("empty-form-template").innerHTML;
 
     addRowBtn.addEventListener("click", () => {
         const formIndex = parseInt(totalForms.value);
-        const emptyRow = tableBody.querySelector(".form-row").cloneNode(true);
-
-        emptyRow.querySelectorAll("input, select").forEach((input) => {
-            if (input.name) {
-                input.name = input.name.replace(/form-\d+/, `form-${formIndex}`);
-                input.id = input.id.replace(/form-\d+/, `form-${formIndex}`);
-                if (input.tagName === "SELECT") input.selectedIndex = 0;
-                else input.value = "";
-            }
-        });
-
-        const hiddenInputs = emptyRow.querySelectorAll("input[type=hidden]");
-        hiddenInputs.forEach(h => {
-            if (h.name.includes("id")) h.value = "";
-        });
-
+        let newRowHTML = template.replace(/__prefix__/g, formIndex);
+        const tempDiv = document.createElement("tbody");
+        tempDiv.innerHTML = newRowHTML.trim();
+        const newRow = tempDiv.firstChild;
+        tableBody.appendChild(newRow);
         totalForms.value = formIndex + 1;
-        tableBody.appendChild(emptyRow);
     });
 
-    document.addEventListener("click", (e) => {
+    document.addEventListener("click", function (e) {
         if (e.target.classList.contains("remove-row")) {
-            const rows = document.querySelectorAll(".form-row");
-            if (rows.length > 1) {
-                e.target.closest(".form-row").remove();
-                totalForms.value = rows.length - 1;
+            const row = e.target.closest(".form-row");
+            if (row) {
+                row.remove();
+                // Optional: reduce totalForms value if needed
             }
         }
     });
