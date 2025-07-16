@@ -22,7 +22,10 @@
                 <tbody>
                     {% for form in formset %}
                     <tr class="form-row">
-                        <td>{{ form.stock_item }}</td>
+                        <td>
+                            {{ form.stock_item }}
+                            <div><small class="text-muted remaining-label"></small></div>
+                        </td>
                         <td>{{ form.quantity_issued }}</td>
                         <td>{{ form.remarks }}</td>
                         <td>
@@ -42,6 +45,27 @@
 </div>
 
 <script>
+    const stockData = {{ stock_data|safe }};
+
+    function updateRemaining(selectElement) {
+        const itemId = selectElement.value;
+        const label = selectElement.closest('td').querySelector('.remaining-label');
+        if (itemId && stockData[itemId] !== undefined) {
+            label.textContent = `Remaining: ${stockData[itemId]}`;
+        } else {
+            label.textContent = '';
+        }
+    }
+
+    function bindSelectChange(select) {
+        select.addEventListener('change', () => updateRemaining(select));
+        updateRemaining(select);  // initialize
+    }
+
+    document.querySelectorAll('select[name$="-stock_item"]').forEach(select => {
+        bindSelectChange(select);
+    });
+
     const addRowBtn = document.getElementById('add-row');
     const formTable = document.getElementById('form-table').getElementsByTagName('tbody')[0];
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
@@ -51,8 +75,8 @@
         const emptyRow = document.querySelector('.form-row').cloneNode(true);
 
         emptyRow.querySelectorAll('input, select, textarea').forEach(input => {
-            input.name = input.name.replace(/form-\\d+-/, `form-${formIdx}-`);
-            input.id = input.id.replace(/form-\\d+-/, `form-${formIdx}-`);
+            input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
+            input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
             if (input.tagName === 'SELECT') {
                 input.selectedIndex = 0;
             } else {
@@ -60,8 +84,12 @@
             }
         });
 
-        totalForms.value = formIdx + 1;
+        // Clear remaining label and bind event
+        emptyRow.querySelector('.remaining-label').textContent = '';
+        bindSelectChange(emptyRow.querySelector('select[name$="-stock_item"]'));
+
         formTable.appendChild(emptyRow);
+        totalForms.value = formIdx + 1;
     });
 
     document.addEventListener('click', function (e) {

@@ -379,7 +379,13 @@ def add_office_issue(request, office_id):
     else:
         formset = IssueFormSet(queryset=Issue.objects.none())
 
-    return render(request, 'store/add_office_issue.html', {'formset': formset, 'office': office})
+        stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
+
+    return render(request, 'store/add_office_issue.html', {
+        'formset': formset,
+        'office': office,
+        'stock_data': stock_data,  # Pass stock data to the template
+    })
 
 
 # View: Display issued items for a specific office on a date
