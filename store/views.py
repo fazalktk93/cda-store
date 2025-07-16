@@ -251,16 +251,46 @@ def report_form_view(request):
 # ---------------- Voucher Views ----------------
 @login_required
 def voucher_detail(request, voucher_number):
-    receipts = Receipt.objects.filter(voucher_number=voucher_number)
+    receipts = Receipt.objects.filter(voucher_number=voucher_number).select_related('stock_item', 'stock_item__vendor')
 
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-    if start and end:
-        receipts = receipts.filter(date_received__range=[start, end])
+    # Apply date filter if search=true is in query
+    if request.GET.get("search") == "true":
+        start = request.GET.get("start")
+        end = request.GET.get("end")
+        if start and end:
+            receipts = receipts.filter(date_received__range=[start, end])
+    else:
+        start = end = None
+
+    # Group items by (name, unit_price)
+    grouped_data = defaultdict(lambda: {"quantity": 0, "total_price": Decimal("0.00")})
+    for receipt in receipts:
+        key = (receipt.stock_item.name, receipt.unit_price)
+        grouped_data[key]["quantity"] += receipt.quantity_received
+        grouped_data[key]["total_price"] += receipt.quantity_received * receipt.unit_price
+
+    grouped_receipts = []
+    for (name, unit_price), values in grouped_data.items():
+        grouped_receipts.append({
+            "item_name": name,
+            "unit_price": unit_price,
+            "quantity": values["quantity"],
+            "total_price": values["total_price"]
+        })
+
+    grand_total = sum(item["total_price"] for item in grouped_receipts)
+    vendor_name = receipts[0].stock_item.vendor.name if receipts else ""
+    voucher_date = receipts[0].date_received if receipts else ""
 
     return render(request, 'store/voucher_detail.html', {
-        'voucher_number': voucher_number,
-        'receipts': receipts,
+        "voucher_number": voucher_number,
+        "vendor_name": vendor_name,
+        "voucher_date": voucher_date,
+        "receipts": grouped_receipts,
+        "grand_total": grand_total,
+        "search_mode": request.GET.get("search") == "true",
+        "start": start,
+        "end": end,
     })
 
 @login_required
@@ -274,4 +304,10 @@ def voucher_print(request, voucher_number):
     buffer = io.BytesIO()
     pisa.CreatePDF(html, dest=buffer)
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename=f'{voucher_number}.pdf')
+
+    # Show in browser (preview) instead of forcing download
+    return FileResponse(
+        buffer,
+        content_type='application/pdf',
+        filename=f'{voucher_number}.pdf'
+    )
