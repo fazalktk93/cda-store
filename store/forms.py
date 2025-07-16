@@ -66,17 +66,15 @@ class StockCategoryForm(forms.ModelForm):
         
 class VendorStockForm(forms.ModelForm):
     class Meta:
-        model = StockItem
-        fields = ['name', 'purchase_price', 'quantity']
+        model = VendorStock
+        fields = ['stock_item', 'purchase_price', 'quantity']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Populate the dropdown with all existing item names
-        self.fields['name'].queryset = StockItem.objects.all().order_by('name')
-
-        # Optional: Add CSS class for styling
-        self.fields['name'].widget.attrs.update({'class': 'form-select'})
+        self.fields['stock_item'].queryset = StockItem.objects.all()
+        self.fields['stock_item'].widget.attrs.update({'class': 'form-select'})
+        self.fields['purchase_price'].widget.attrs.update({'class': 'form-control'})
+        self.fields['quantity'].widget.attrs.update({'class': 'form-control'})
         
 class ReceiptForm(forms.ModelForm):
     class Meta:
