@@ -25,7 +25,7 @@ class StockCategory(models.Model):
 class StockItem(models.Model):
     name = models.CharField(max_length=200)
     vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE)
-    #category = models.ForeignKey(StockCategory, on_delete=models.CASCADE, related_name='items')  # ✅ new line
+    category = models.ForeignKey(StockCategory, on_delete=models.CASCADE, related_name='items')  # ✅ re-add this
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -36,14 +36,12 @@ class StockItem(models.Model):
         super().save(*args, **kwargs)
 
     def total_quantity_available(self):
-        total_received = self.receipt_set.aggregate(qty=Sum('quantity_received'))['qty'] or 0
-        total_issued = self.issue_set.aggregate(qty=Sum('quantity_issued'))['qty'] or 0
+        total_received = self.receipt_set.aggregate(qty=models.Sum('quantity_received'))['qty'] or 0
+        total_issued = self.issue_set.aggregate(qty=models.Sum('quantity_issued'))['qty'] or 0
         return total_received - total_issued
 
     def __str__(self):
         return self.name
-
-
 
 class Issue(models.Model):
     stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
