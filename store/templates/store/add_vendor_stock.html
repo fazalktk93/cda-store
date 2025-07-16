@@ -59,35 +59,34 @@
 {% block extra_js %}
 <script>
     const addRowBtn = document.getElementById('add-row');
-    const formTableBody = document.querySelector('#form-table tbody');
+    const formTable = document.getElementById('form-table').querySelector('tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const templateRow = document.querySelector('.form-row');
-        const newRow = templateRow.cloneNode(true);
+        const firstRow = document.querySelector('.form-row');
+        const newRow = firstRow.cloneNode(true);
 
-        // Clear values and update names/ids
-        newRow.querySelectorAll('input, select, textarea').forEach(input => {
-            if (input.name) {
-                input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
-            }
-            if (input.id) {
-                input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
-            }
+        // Clear values and update name/id
+        newRow.querySelectorAll('input, select').forEach(el => {
+            const name = el.getAttribute('name');
+            const id = el.getAttribute('id');
 
-            if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
+            if (name) el.setAttribute('name', name.replace(/form-\d+-/, `form-${formIdx}-`));
+            if (id) el.setAttribute('id', id.replace(/form-\d+-/, `form-${formIdx}-`));
+
+            if (el.tagName === 'SELECT') {
+                el.selectedIndex = 0;
             } else {
-                input.value = '';
+                el.value = '';
             }
         });
 
-        formTableBody.appendChild(newRow);
         totalForms.value = formIdx + 1;
+        formTable.appendChild(newRow);
     });
 
-    // Handle row deletion
+    // Remove row logic
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
@@ -99,4 +98,5 @@
         }
     });
 </script>
+
 {% endblock %}

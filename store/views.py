@@ -113,7 +113,7 @@ def add_vendor_stock(request, vendor_id):
         else:
             print("Formset errors:", formset.errors)
     else:
-        formset = StockFormSet(queryset=StockItem.objects.none())
+        formset = StockFormSet(queryset=VendorStock.objects.none())
 
     return render(request, 'store/add_vendor_stock.html', {
         'formset': formset,
