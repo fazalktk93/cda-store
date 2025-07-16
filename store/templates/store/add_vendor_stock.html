@@ -35,10 +35,20 @@
                 <tbody>
                     {% for form in formset %}
                     <tr class="form-row">
-                        <td>{{ form.stock_item }}</td>
-                        <td>{{ form.purchase_price }}</td>
-                        <td>{{ form.quantity }}</td>
+                        {{ form.id }} <!-- Include hidden id field -->
                         <td>
+                            {{ form.stock_item }}
+                            {{ form.stock_item.errors }}
+                        </td>
+                        <td>
+                            {{ form.purchase_price }}
+                            {{ form.purchase_price.errors }}
+                        </td>
+                        <td>
+                            {{ form.quantity }}
+                            {{ form.quantity.errors }}
+                        </td>
+                        <td class="text-center">
                             <button type="button" class="btn btn-danger btn-sm remove-row">×</button>
                         </td>
                     </tr>
@@ -64,29 +74,32 @@
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const firstRow = document.querySelector('.form-row');
-        const newRow = firstRow.cloneNode(true);
+        const newRow = formTable.querySelector('tr').cloneNode(true);
 
-        // Clear values and update name/id
-        newRow.querySelectorAll('input, select').forEach(el => {
-            const name = el.getAttribute('name');
-            const id = el.getAttribute('id');
+        newRow.querySelectorAll('input, select').forEach(input => {
+            if (input.name) {
+                input.name = input.name.replace(/form-(\d+)-/, `form-${formIdx}-`);
+            }
+            if (input.id) {
+                input.id = input.id.replace(/form-(\d+)-/, `form-${formIdx}-`);
+            }
 
-            if (name) el.setAttribute('name', name.replace(/form-\d+-/, `form-${formIdx}-`));
-            if (id) el.setAttribute('id', id.replace(/form-\d+-/, `form-${formIdx}-`));
-
-            if (el.tagName === 'SELECT') {
-                el.selectedIndex = 0;
+            // Clear values
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
             } else {
-                el.value = '';
+                input.value = '';
             }
         });
 
-        totalForms.value = formIdx + 1;
+        // Remove hidden input (e.g. id) if exists
+        const hiddenId = newRow.querySelector('input[type=hidden]');
+        if (hiddenId) hiddenId.remove();
+
         formTable.appendChild(newRow);
+        totalForms.value = formIdx + 1;
     });
 
-    // Remove row logic
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
@@ -98,5 +111,4 @@
         }
     });
 </script>
-
 {% endblock %}
