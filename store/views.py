@@ -293,7 +293,6 @@ def voucher_detail(request, voucher_number):
         "search_mode": request.GET.get("search") == "true",
         "start": start,
         "end": end,
-        "vendor": vendor,
     })
 
 @login_required
