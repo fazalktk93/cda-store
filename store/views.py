@@ -96,7 +96,7 @@ def add_vendor_stock(request, vendor_id):
                 item.save()
             return redirect('vendor_detail', vendor_id=vendor.id)
     else:
-        formset = StockFormSet(queryset=StockItem.objects.none())
+        formset = StockFormSet(queryset=StockItem.objects.all())
 
     return render(request, 'store/add_vendor_stock.html', {
         'formset': formset,
