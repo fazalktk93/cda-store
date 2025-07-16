@@ -65,10 +65,10 @@ class StockCategoryForm(forms.ModelForm):
         
 class VendorStockForm(forms.ModelForm):
     class Meta:
-        model = VendorStock
-        fields = ['stock_item', 'purchase_price', 'quantity']
+        model = StockItem
+        fields = ['name', 'purchase_price', 'quantity']
         widgets = {
-            'item': forms.Select(attrs={'class': 'form-select'}),
+            'name': forms.Select(attrs={'class': 'form-select'}),
             'purchase_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         }

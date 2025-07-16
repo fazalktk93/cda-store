@@ -34,7 +34,7 @@
                 <tbody>
                     {% for form in formset %}
                     <tr class="form-row">
-                        <td>{{ form.stock_item }}</td>
+                        <td>{{ form.name }}</td>
                         <td>{{ form.purchase_price }}</td>
                         <td>{{ form.quantity }}</td>
                         <td>
@@ -67,7 +67,11 @@
             if (input.name) {
                 input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
                 input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
-                input.value = '';
+                if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
             }
         });
 

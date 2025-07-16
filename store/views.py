@@ -18,6 +18,7 @@ from django.views.generic import ListView, CreateView
 from .models import StockItem
 from .forms import StockItemForm
 from .models import Vendor, StockItem
+from .forms import VendorStockForm
 
 from .models import Vendor, StockItem, Issue, Receipt, Office, StockItem, StockCategory
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm, ReportSearchForm
@@ -84,15 +85,23 @@ def vendor_detail(request, vendor_id):
 @login_required
 def add_vendor_stock(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
-    StockFormSet = modelformset_factory(StockItem, form=StockItemForm, extra=1)
-    formset = StockFormSet(request.POST or None, queryset=StockItem.objects.none())
-    if request.method == 'POST' and formset.is_valid():
-        instances = formset.save(commit=False)
-        for item in instances:
-            item.vendor = vendor
-            item.save()
-        return redirect('vendor_detail', vendor_id=vendor.id)
-    return render(request, 'store/add_vendor_stock.html', {'formset': formset, 'vendor': vendor})
+    StockFormSet = modelformset_factory(StockItem, form=VendorStockForm, extra=1)
+
+    if request.method == 'POST':
+        formset = StockFormSet(request.POST)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for item in instances:
+                item.vendor = vendor
+                item.save()
+            return redirect('vendor_detail', vendor_id=vendor.id)
+    else:
+        formset = StockFormSet(queryset=StockItem.objects.none())
+
+    return render(request, 'store/add_vendor_stock.html', {
+        'formset': formset,
+        'vendor': vendor
+    })
 
 
 # ---------------- Stock Views ----------------
