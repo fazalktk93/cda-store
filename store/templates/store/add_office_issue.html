@@ -1,6 +1,10 @@
 {% extends "store/base.html" %}
 {% block title %}Issue Stock to {{ office.name }}{% endblock %}
-
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
 {% block content %}
 <div class="container">
     <h2 class="mb-4">Issue Stock to Office: {{ office.name }}</h2>

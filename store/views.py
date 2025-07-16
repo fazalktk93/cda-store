@@ -367,7 +367,7 @@ def add_office_issue(request, office_id):
     office = get_object_or_404(Office, id=office_id)
     IssueFormSet = modelformset_factory(Issue, form=IssueForm, extra=1)
 
-    # ✅ Always define this BEFORE the request method check
+    # Show current stock levels in dropdown logic
     stock_data = {str(item.id): item.quantity for item in StockItem.objects.all()}
 
     if request.method == 'POST':
@@ -376,7 +376,19 @@ def add_office_issue(request, office_id):
             instances = formset.save(commit=False)
             for issue in instances:
                 issue.office = office
+
+                # Save issue to DB
                 issue.save()
+
+                # ✅ Subtract from stock
+                stock_item = issue.stock_item
+                if stock_item.quantity >= issue.quantity_issued:
+                    stock_item.quantity -= issue.quantity_issued
+                    stock_item.save()
+                else:
+                    messages.error(request, f"Not enough stock for '{stock_item.name}'. Only {stock_item.quantity} available.")
+                    return redirect('add_office_issue', office_id=office.id)
+
             return redirect('office_detail', office_id=office.id)
     else:
         formset = IssueFormSet(queryset=Issue.objects.none())
@@ -384,7 +396,7 @@ def add_office_issue(request, office_id):
     return render(request, 'store/add_office_issue.html', {
         'formset': formset,
         'office': office,
-        'stock_data': stock_data,  # ✅ Safe to access here
+        'stock_data': stock_data,
     })
 
 
