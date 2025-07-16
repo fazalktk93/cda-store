@@ -463,13 +463,3 @@ class ItemCreateView(CreateView):
     form_class = StockItemForm
     template_name = 'store/item_form.html'
     success_url = reverse_lazy('item_list')
-
-class VendorStock(models.Model):
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateField()
-
-    def __str__(self):
-        return f"{self.vendor.name} - {self.stock_item.name}"
