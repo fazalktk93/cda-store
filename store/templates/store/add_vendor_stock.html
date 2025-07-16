@@ -9,6 +9,12 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
+        <!-- 🧾 Voucher Number Input -->
+        <div class="mb-4">
+            <label for="voucher_number" class="form-label">Voucher Number</label>
+            <input type="text" name="voucher_number" id="voucher_number" class="form-control" required>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-bordered align-middle" id="form-table">
                 <thead class="table-light">
@@ -36,7 +42,7 @@
 
         <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
         <br><br>
-        <button type="submit" class="btn btn-success">Save Stock Items</button>
+        <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
 </div>
@@ -61,7 +67,6 @@
         formTable.appendChild(emptyRow);
     });
 
-    // Remove row
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
