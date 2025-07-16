@@ -1,4 +1,6 @@
 {% extends "store/base.html" %}
+{% block title %}Add Stock for {{ vendor.name }}{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Add Stock for Vendor: <strong>{{ vendor.name }}</strong></h2>
@@ -7,7 +9,7 @@
         {% csrf_token %}
         {{ formset.management_form }}
 
-        <!-- Voucher info -->
+        <!-- Voucher Info -->
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="voucher_number">Voucher Number</label>
@@ -30,7 +32,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="form-rows">
                     {% for form in formset %}
                     <tr class="form-row">
                         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
@@ -44,20 +46,21 @@
             </table>
         </div>
 
+        <!-- Button -->
         <button type="button" class="btn btn-outline-primary mt-2" id="add-row">+ Add Another Item</button>
         <br><br>
         <button type="submit" class="btn btn-success">Save Voucher</button>
         <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
 
-    <!-- Hidden empty form for cloning -->
-    <template id="empty-form-template">
+    <!-- Hidden Template -->
+    <template id="empty-form">
         <tr class="form-row">
             {{ formset.empty_form.management_form }}
             {% for hidden in formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
-            <td>{{ formset.empty_form.stock_item }}</td>
-            <td>{{ formset.empty_form.purchase_price }}</td>
-            <td>{{ formset.empty_form.quantity }}</td>
+            <td>{% filter force_escape %}{{ formset.empty_form.stock_item }}{% endfilter %}</td>
+            <td>{% filter force_escape %}{{ formset.empty_form.purchase_price }}{% endfilter %}</td>
+            <td>{% filter force_escape %}{{ formset.empty_form.quantity }}{% endfilter %}</td>
             <td><button type="button" class="btn btn-danger btn-sm remove-row">×</button></td>
         </tr>
     </template>
@@ -66,29 +69,31 @@
 
 {% block extra_js %}
 <script>
-    const addRowBtn = document.getElementById("add-row");
-    const tableBody = document.querySelector("#form-table tbody");
-    const totalForms = document.getElementById("id_form-TOTAL_FORMS");
-    const template = document.getElementById("empty-form-template").innerHTML;
+    document.addEventListener("DOMContentLoaded", function () {
+        const addRowBtn = document.getElementById("add-row");
+        const formRows = document.getElementById("form-rows");
+        const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+        const emptyFormTemplate = document.getElementById("empty-form").innerHTML;
 
-    addRowBtn.addEventListener("click", () => {
-        const formIndex = parseInt(totalForms.value);
-        let newRowHTML = template.replace(/__prefix__/g, formIndex);
-        const tempDiv = document.createElement("tbody");
-        tempDiv.innerHTML = newRowHTML.trim();
-        const newRow = tempDiv.firstChild;
-        tableBody.appendChild(newRow);
-        totalForms.value = formIndex + 1;
-    });
+        addRowBtn.addEventListener("click", () => {
+            const formIndex = parseInt(totalForms.value);
+            const newRowHtml = emptyFormTemplate.replace(/__prefix__/g, formIndex);
+            const tempDiv = document.createElement("tbody");
+            tempDiv.innerHTML = newRowHtml.trim();
+            const newRow = tempDiv.firstElementChild;
+            formRows.appendChild(newRow);
+            totalForms.value = formIndex + 1;
+        });
 
-    document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("remove-row")) {
-            const row = e.target.closest(".form-row");
-            if (row) {
-                row.remove();
-                // Optional: reduce totalForms value if needed
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-row")) {
+                const row = e.target.closest(".form-row");
+                if (row && formRows.children.length > 1) {
+                    row.remove();
+                    totalForms.value = formRows.children.length;
+                }
             }
-        }
+        });
     });
 </script>
 {% endblock %}
