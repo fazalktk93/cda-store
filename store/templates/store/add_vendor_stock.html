@@ -34,15 +34,15 @@
                     {% for form in formset %}
                     <tr class="form-row align-middle">
                         <td>
-                            {{ form.item|add_class:"form-select" }}
+                            {{ form.item }}
                             {{ form.item.errors }}
                         </td>
                         <td>
-                            {{ form.purchase_price|add_class:"form-control text-end" }}
+                            {{ form.purchase_price }}
                             {{ form.purchase_price.errors }}
                         </td>
                         <td>
-                            {{ form.quantity|add_class:"form-control text-center" }}
+                            {{ form.quantity }}
                             {{ form.quantity.errors }}
                         </td>
                         <td class="text-center">
