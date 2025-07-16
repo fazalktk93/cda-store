@@ -2,6 +2,7 @@ from django import forms
 from .models import Vendor, StockItem, Issue
 from .models import Issue, Office
 from .models import StockCategory
+from .models import VendorStock
 
 class VendorForm(forms.ModelForm):
     class Meta:
