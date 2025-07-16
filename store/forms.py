@@ -1,6 +1,7 @@
 from django import forms
 from .models import Vendor, StockItem, Issue
 from .models import Issue, Office
+from .models import StockCategory
 
 class VendorForm(forms.ModelForm):
     class Meta:
@@ -10,7 +11,7 @@ class VendorForm(forms.ModelForm):
 class StockItemForm(forms.ModelForm):
     class Meta:
         model = StockItem
-        fields = ['name', 'vendor', 'purchase_price', 'quantity']
+        fields = ['name', 'category', 'unit']
 
 
 class IssueForm(forms.ModelForm):
@@ -49,3 +50,8 @@ class ReportSearchForm(forms.Form):
         empty_label="All Offices",
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
+class StockCategoryForm(forms.ModelForm):
+    class Meta:
+        model = StockCategory
+        fields = ['name']

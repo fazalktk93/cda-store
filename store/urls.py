@@ -5,6 +5,7 @@ from .views import OfficeListView, OfficeCreateView, report_form_view, report_vi
 from .views import report_search    
 from .views import report_view
 from .views import vendor_detail, add_vendor_stock
+from .views import ItemCreateView, ItemListView
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -24,6 +25,8 @@ urlpatterns = [
     path('offices/<int:office_id>/issue-stock/', views.add_office_issue, name='add_office_issue'),
     path('issues/<str:date>/<int:office_id>/', views.issue_detail, name='issue_detail'),
     path('issues/<str:date>/<int:office_id>/print/', views.issue_print, name='issue_print'),
+    path('items/', ItemListView.as_view(), name='item_list'),
+    path('items/new/', ItemCreateView.as_view(), name='item_create'),
     path('report/', report_view, name='report_view'),
     path('report/form/', report_form_view, name='report_form'),
     path('report/pdf/', views.report_pdf, name='report_pdf'),

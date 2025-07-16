@@ -13,6 +13,9 @@ import json, io
 from xhtml2pdf import pisa
 from decimal import Decimal
 from django.db import models
+from django.views.generic import ListView, CreateView
+from .models import StockItem
+from .forms import StockItemForm
 
 from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm, ReportSearchForm
@@ -408,3 +411,27 @@ def issue_print(request, date, office_id):
     response.seek(0)
 
     return FileResponse(response, content_type='application/pdf')
+
+@login_required
+def category_list(request):
+    categories = StockCategory.objects.all()
+    return render(request, 'store/category_list.html', {'categories': categories})
+
+@login_required
+def category_add(request):
+    form = StockCategoryForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('category_list')
+    return render(request, 'store/category_form.html', {'form': form})
+
+class ItemListView(ListView):
+    model = StockItem
+    template_name = 'store/item_list.html'
+    context_object_name = 'items'
+
+class ItemCreateView(CreateView):
+    model = StockItem
+    form_class = StockItemForm
+    template_name = 'store/item_form.html'
+    success_url = reverse_lazy('item_list')

@@ -1,0 +1,14 @@
+{% extends "store/base.html" %}
+{% block title %}Add Item{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Add Stock Item</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a href="{% url 'item_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
