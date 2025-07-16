@@ -12,6 +12,7 @@ from datetime import date
 import json, io
 from xhtml2pdf import pisa
 from decimal import Decimal
+from django.db import models
 
 from .models import Vendor, StockItem, Issue, Receipt, Office
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm, ReportSearchForm
@@ -61,7 +62,7 @@ def vendor_detail(request, vendor_id):
         .values('voucher_number')
         .annotate(
             total_items=Sum('quantity_received'),
-            total_price=Sum(F('unit_price') * F('quantity_received')),
+            total_price=Sum(F('unit_price') * F('quantity_received'), output_field=models.DecimalField()),
             date=F('date_received')
         ).order_by('-date')
     )
