@@ -7,7 +7,11 @@
 
 <!-- ➕ Add Stock -->
 <div class="mt-4 mb-3">
-    <a href="{% url 'add_vendor_stock' vendor.id %}" class="btn btn-primary">➕ Add Stock Items</a>
+    {% if vendor.id %}
+        <a href="{% url 'add_vendor_stock' vendor.id %}" class="btn btn-primary">➕ Add Stock Items</a>
+    {% else %}
+        <span class="text-muted">Cannot add stock — missing vendor ID</span>
+{% endif %}
 </div>
 
 <!-- 🧾 Voucher Summary Table -->
