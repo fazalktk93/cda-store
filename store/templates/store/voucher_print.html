@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>Voucher: {{ voucher_number }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in receipts %}
+            <tr>
+                <td>{{ r.stock_item.name }}</td>
+                <td>{{ r.quantity_received }}</td>
+                <td>{{ r.unit_price }}</td>
+                <td>{{ r.total_price }}</td>
+                <td>{{ r.date_received }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
