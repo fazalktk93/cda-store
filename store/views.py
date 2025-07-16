@@ -87,15 +87,28 @@ def vendor_detail(request, vendor_id):
 @login_required
 def add_vendor_stock(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
-    StockFormSet = modelformset_factory(VendorStock, form=VendorStockForm, extra=1, can_delete=True)
+    StockFormSet = modelformset_factory(StockItem, form=VendorStockForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         formset = StockFormSet(request.POST)
+        voucher_number = request.POST.get('voucher_number')
+        voucher_date = request.POST.get('voucher_date') or date.today()  # fallback if not provided
+
         if formset.is_valid():
             instances = formset.save(commit=False)
             for item in instances:
                 item.vendor = vendor
                 item.save()
+
+                # ✅ Save matching receipt
+                Receipt.objects.create(
+                    stock_item=item,
+                    quantity_received=item.quantity,
+                    unit_price=item.purchase_price,
+                    date_received=voucher_date,
+                    voucher_number=voucher_number
+                )
+
             return redirect('vendor_detail', vendor_id=vendor.id)
         else:
             print("Formset errors:", formset.errors)

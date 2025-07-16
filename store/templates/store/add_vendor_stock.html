@@ -59,26 +59,35 @@
 {% block extra_js %}
 <script>
     const addRowBtn = document.getElementById('add-row');
-    const formTable = document.querySelector('#form-table tbody');
+    const formTableBody = document.querySelector('#form-table tbody');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const firstRow = document.querySelector('.form-row');
-        const newRow = firstRow.cloneNode(true);
+        const templateRow = document.querySelector('.form-row');
+        const newRow = templateRow.cloneNode(true);
 
-        newRow.querySelectorAll('input, select').forEach(input => {
+        // Clear values and update names/ids
+        newRow.querySelectorAll('input, select, textarea').forEach(input => {
             if (input.name) {
                 input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
+            }
+            if (input.id) {
                 input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
-                input.value = '';  // clear existing values
+            }
+
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else {
+                input.value = '';
             }
         });
 
-        formTable.appendChild(newRow);
+        formTableBody.appendChild(newRow);
         totalForms.value = formIdx + 1;
     });
 
+    // Handle row deletion
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('remove-row')) {
             const row = e.target.closest('.form-row');
