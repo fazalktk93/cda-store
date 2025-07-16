@@ -17,6 +17,7 @@ from datetime import date
 from django.db.models import Sum, Avg, F
 from collections import defaultdict
 from store.models import Receipt
+from django.forms import modelformset_factory
 
 
 # Dashboard
@@ -327,3 +328,33 @@ class IssueCreateView(CreateView):
         context['stock_data_json'] = json.dumps(stock_data)
         context['issued_items'] = Issue.objects.select_related('stock_item', 'office').order_by('-date_issued')[:5]
         return context
+
+@login_required   
+def vendor_detail(request, vendor_id):
+    vendor = get_object_or_404(Vendor, id=vendor_id)
+    stock_items = StockItem.objects.filter(vendor=vendor)
+    return render(request, 'store/vendor_detail.html', {
+        'vendor': vendor,
+        'stock_items': stock_items
+    })
+    
+@login_required
+def add_vendor_stock(request, vendor_id):
+    vendor = get_object_or_404(Vendor, id=vendor_id)
+    StockFormSet = modelformset_factory(StockItem, form=StockItemForm, extra=3, can_delete=False)
+
+    if request.method == 'POST':
+        formset = StockFormSet(request.POST, queryset=StockItem.objects.none())
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for item in instances:
+                item.vendor = vendor
+                item.save()
+            return redirect('vendor_detail', vendor_id=vendor.id)
+    else:
+        formset = StockFormSet(queryset=StockItem.objects.none())
+
+    return render(request, 'store/add_vendor_stock.html', {
+        'formset': formset,
+        'vendor': vendor
+    })

@@ -1,5 +1,6 @@
 {% extends "store/base.html" %}
 {% block title %}Vendor Details{% endblock %}
+
 {% block content %}
 <h2>{{ vendor.name }}</h2>
 <p><strong>Contact:</strong> {{ vendor.contact }}</p>
@@ -35,4 +36,12 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- ✅ Add Stock Button -->
+<div class="mt-4">
+    <a href="{% url 'add_vendor_stock' vendor.id %}" class="btn btn-primary">
+        Add Stock Items
+    </a>
+</div>
+
 {% endblock %}

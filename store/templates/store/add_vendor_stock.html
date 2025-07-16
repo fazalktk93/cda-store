@@ -1,0 +1,37 @@
+{% extends "store/base.html" %}
+{% block title %}Add Stock for {{ vendor.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Add Stock for Vendor: {{ vendor.name }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Purchase Price</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formset %}
+                    <tr>
+                        <td>{{ form.name }}</td>
+                        <td>{{ form.purchase_price }}</td>
+                        <td>{{ form.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">Save Stock Items</button>
+        <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary mt-3">Back to Vendor</a>
+    </form>
+</div>
+{% endblock %}
