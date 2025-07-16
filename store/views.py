@@ -332,3 +332,30 @@ def voucher_print(request, voucher_number):
     buffer.seek(0)
 
     return FileResponse(buffer, content_type='application/pdf')
+
+
+@login_required
+def office_detail(request, office_id):
+    office = get_object_or_404(Office, id=office_id)
+    issues = Issue.objects.filter(office=office).select_related('stock_item').order_by('-date_issued')
+    return render(request, 'store/office_detail.html', {'office': office, 'issues': issues})
+
+
+@login_required
+def add_office_issue(request, office_id):
+    office = get_object_or_404(Office, id=office_id)
+    IssueFormSet = modelformset_factory(Issue, form=IssueForm, extra=1)
+
+    if request.method == 'POST':
+        formset = IssueFormSet(request.POST)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for issue in instances:
+                issue.office = office
+                issue.date_issued = date.today()
+                issue.save()
+            return redirect('office_detail', office_id=office.id)
+    else:
+        formset = IssueFormSet(queryset=Issue.objects.none())
+
+    return render(request, 'store/add_office_issue.html', {'formset': formset, 'office': office})

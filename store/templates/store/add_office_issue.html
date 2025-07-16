@@ -1,0 +1,78 @@
+{% extends "store/base.html" %}
+{% block title %}Issue Stock to {{ office.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Issue Stock to Office: {{ office.name }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle" id="form-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Remarks</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in formset %}
+                    <tr class="form-row">
+                        <td>{{ form.stock_item }}</td>
+                        <td>{{ form.quantity_issued }}</td>
+                        <td>{{ form.remarks }}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger remove-row">×</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+        <br><br>
+        <button type="submit" class="btn btn-success">Issue Stock</button>
+        <a href="{% url 'office_detail' office.id %}" class="btn btn-secondary">Back to Office</a>
+    </form>
+</div>
+
+<script>
+    const addRowBtn = document.getElementById('add-row');
+    const formTable = document.getElementById('form-table').getElementsByTagName('tbody')[0];
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+    addRowBtn.addEventListener('click', () => {
+        const formIdx = parseInt(totalForms.value);
+        const emptyRow = document.querySelector('.form-row').cloneNode(true);
+
+        emptyRow.querySelectorAll('input, select, textarea').forEach(input => {
+            input.name = input.name.replace(/form-\\d+-/, `form-${formIdx}-`);
+            input.id = input.id.replace(/form-\\d+-/, `form-${formIdx}-`);
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else {
+                input.value = '';
+            }
+        });
+
+        totalForms.value = formIdx + 1;
+        formTable.appendChild(emptyRow);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-row')) {
+            const row = e.target.closest('.form-row');
+            const allRows = document.querySelectorAll('.form-row');
+            if (allRows.length > 1) {
+                row.remove();
+                totalForms.value = allRows.length - 1;
+            }
+        }
+    });
+</script>
+{% endblock %}
