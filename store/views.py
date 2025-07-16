@@ -18,7 +18,7 @@ from django.views.generic import ListView, CreateView
 from .models import StockItem
 from .forms import StockItemForm
 
-from .models import Vendor, StockItem, Issue, Receipt, Office
+from .models import Vendor, StockItem, Issue, Receipt, Office, StockItem, StockCategory
 from .forms import VendorForm, StockItemForm, IssueForm, OfficeForm, ReportSearchForm
 
 # ---------------- Dashboard ----------------
@@ -92,6 +92,7 @@ def add_vendor_stock(request, vendor_id):
             item.save()
         return redirect('vendor_detail', vendor_id=vendor.id)
     return render(request, 'store/add_vendor_stock.html', {'formset': formset, 'vendor': vendor})
+
 
 # ---------------- Stock Views ----------------
 @login_required
@@ -461,3 +462,13 @@ class ItemCreateView(CreateView):
     form_class = StockItemForm
     template_name = 'store/item_form.html'
     success_url = reverse_lazy('item_list')
+
+class VendorStock(models.Model):
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    stock_item = models.ForeignKey(StockItem, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.vendor.name} - {self.stock_item.name}"

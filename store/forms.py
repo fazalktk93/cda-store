@@ -72,3 +72,4 @@ class VendorStockForm(forms.ModelForm):
             'purchase_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+        
