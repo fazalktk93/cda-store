@@ -99,7 +99,6 @@ def add_vendor_stock(request, vendor_id):
             for item in instances:
                 item.vendor = vendor
                 item.save()
-
                 Receipt.objects.create(
                     stock_item=item.stock_item,
                     quantity_received=item.quantity,
@@ -109,7 +108,7 @@ def add_vendor_stock(request, vendor_id):
                 )
             return redirect('vendor_detail', vendor_id=vendor.id)
         else:
-            print("Formset errors:", formset.errors)
+            print(formset.errors)
     else:
         formset = StockFormSet(queryset=VendorStock.objects.none())
 
