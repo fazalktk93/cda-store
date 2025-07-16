@@ -11,7 +11,7 @@ class VendorForm(forms.ModelForm):
 class StockItemForm(forms.ModelForm):
     class Meta:
         model = StockItem
-        fields = ['name', 'unit']
+        fields = ['name', 'unit', 'category']
 
 
 class IssueForm(forms.ModelForm):
