@@ -341,7 +341,7 @@ def vendor_detail(request, vendor_id):
 @login_required
 def add_vendor_stock(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
-    StockFormSet = modelformset_factory(StockItem, form=StockItemForm, extra=3, can_delete=False)
+    StockFormSet = modelformset_factory(StockItem, form=StockItemForm, extra=1, can_delete=False)
 
     if request.method == 'POST':
         formset = StockFormSet(request.POST, queryset=StockItem.objects.none())

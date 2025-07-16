@@ -5,33 +5,72 @@
 <div class="container">
     <h2 class="mb-4">Add Stock for Vendor: {{ vendor.name }}</h2>
 
-    <form method="post">
+    <form method="post" id="stock-form">
         {% csrf_token %}
         {{ formset.management_form }}
 
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table class="table table-bordered align-middle" id="form-table">
                 <thead class="table-light">
                     <tr>
                         <th>Item Name</th>
                         <th>Purchase Price</th>
                         <th>Quantity</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for form in formset %}
-                    <tr>
+                    <tr class="form-row">
                         <td>{{ form.name }}</td>
                         <td>{{ form.purchase_price }}</td>
                         <td>{{ form.quantity }}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger remove-row">×</button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <button type="submit" class="btn btn-success mt-3">Save Stock Items</button>
-        <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary mt-3">Back to Vendor</a>
+        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+        <br><br>
+        <button type="submit" class="btn btn-success">Save Stock Items</button>
+        <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
 </div>
+
+<script>
+    const addRowBtn = document.getElementById('add-row');
+    const formTable = document.getElementById('form-table').getElementsByTagName('tbody')[0];
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+    addRowBtn.addEventListener('click', () => {
+        const formIdx = parseInt(totalForms.value);
+        const emptyRow = document.querySelector('.form-row').cloneNode(true);
+
+        // Clear values in inputs
+        emptyRow.querySelectorAll('input').forEach(input => {
+            input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
+            input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
+            input.value = '';
+        });
+
+        totalForms.value = formIdx + 1;
+        formTable.appendChild(emptyRow);
+    });
+
+    // Remove row
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-row')) {
+            const row = e.target.closest('.form-row');
+            const allRows = document.querySelectorAll('.form-row');
+            if (allRows.length > 1) {
+                row.remove();
+                totalForms.value = allRows.length - 1;
+            }
+        }
+    });
+</script>
 {% endblock %}
