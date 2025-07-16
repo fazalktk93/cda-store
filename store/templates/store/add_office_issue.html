@@ -8,7 +8,11 @@
     <form method="post">
         {% csrf_token %}
         {{ formset.management_form }}
-
+        <div class="mb-3">
+        {{ formset.forms.0.date_issued.label_tag }}
+        {{ formset.forms.0.date_issued }}
+        {{ formset.forms.0.date_issued.errors }}
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered align-middle" id="form-table">
                 <thead class="table-light">

@@ -17,7 +17,7 @@ class StockItemForm(forms.ModelForm):
 class IssueForm(forms.ModelForm):
     class Meta:
         model = Issue
-        fields = ['stock_item', 'office', 'quantity_issued', 'remarks', 'date_issued']
+        fields = ['stock_item', 'quantity_issued', 'remarks', 'date_issued']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

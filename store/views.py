@@ -376,7 +376,6 @@ def add_office_issue(request, office_id):
             instances = formset.save(commit=False)
             for issue in instances:
                 issue.office = office
-                issue.date_issued = date.today()
                 issue.save()
             return redirect('office_detail', office_id=office.id)
     else:
