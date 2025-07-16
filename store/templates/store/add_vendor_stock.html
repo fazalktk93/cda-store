@@ -2,13 +2,14 @@
 {% block title %}Add Stock for {{ vendor.name }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Add Stock for Vendor: <strong>{{ vendor.name }}</strong></h2>
+<div class="container">
+    <h2 class="mb-4">Add Stock for Vendor: {{ vendor.name }}</h2>
 
     <form method="post" id="stock-form">
         {% csrf_token %}
         {{ formset.management_form }}
 
+        <!-- Voucher Number and Date -->
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="voucher_number" class="form-label">Voucher Number</label>
@@ -22,7 +23,7 @@
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle" id="form-table">
-                <thead class="table-light text-center">
+                <thead class="table-light">
                     <tr>
                         <th>Item</th>
                         <th>Purchase Price</th>
@@ -32,21 +33,12 @@
                 </thead>
                 <tbody>
                     {% for form in formset %}
-                    <tr class="form-row align-middle">
+                    <tr class="form-row">
+                        <td>{{ form.item }}</td>
+                        <td>{{ form.purchase_price }}</td>
+                        <td>{{ form.quantity }}</td>
                         <td>
-                            {{ form.item }}
-                            {{ form.item.errors }}
-                        </td>
-                        <td>
-                            {{ form.purchase_price }}
-                            {{ form.purchase_price.errors }}
-                        </td>
-                        <td>
-                            {{ form.quantity }}
-                            {{ form.quantity.errors }}
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger remove-row">×</button>
+                            <button type="button" class="btn btn-danger remove-row">×</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -54,18 +46,13 @@
             </table>
         </div>
 
-        <div class="d-flex justify-content-between mt-3">
-            <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
-            <div>
-                <button type="submit" class="btn btn-success">Save Voucher</button>
-                <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
-            </div>
-        </div>
+        <button type="button" class="btn btn-outline-primary" id="add-row">+ Add Another Item</button>
+        <br><br>
+        <button type="submit" class="btn btn-success">Save Voucher</button>
+        <a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-secondary">Back to Vendor</a>
     </form>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
     const addRowBtn = document.getElementById('add-row');
     const formTable = document.getElementById('form-table').getElementsByTagName('tbody')[0];
@@ -73,20 +60,19 @@
 
     addRowBtn.addEventListener('click', () => {
         const formIdx = parseInt(totalForms.value);
-        const emptyRow = document.querySelector('.form-row').cloneNode(true);
+        const templateRow = document.querySelector('.form-row');
+        const newRow = templateRow.cloneNode(true);
 
-        emptyRow.querySelectorAll('input, select').forEach(input => {
-            if (input.name) input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
-            if (input.id) input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
-            if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-            } else {
+        newRow.querySelectorAll('input, select').forEach(input => {
+            if (input.name) {
+                input.name = input.name.replace(/form-\d+-/, `form-${formIdx}-`);
+                input.id = input.id.replace(/form-\d+-/, `form-${formIdx}-`);
                 input.value = '';
             }
         });
 
-        formTable.appendChild(emptyRow);
         totalForms.value = formIdx + 1;
+        formTable.appendChild(newRow);
     });
 
     document.addEventListener('click', function (e) {
