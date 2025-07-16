@@ -15,12 +15,11 @@
     <tbody>
         {% for issue in issues %}
         <tr>
-            <td>{{ issue.stock_item.name }}</td>
-            <td>{{ issue.quantity_issued }}</td>
-            <td>{{ issue.remarks }}</td>
+            <td>{{ issue.stock_item__name }}</td>
+            <td>{{ issue.total_quantity }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="3">No issues found for this date.</td></tr>
+        <tr><td colspan="2">No issues found for this date.</td></tr>
         {% endfor %}
     </tbody>
 </table>
