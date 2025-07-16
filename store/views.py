@@ -60,7 +60,7 @@ def vendor_detail(request, vendor_id):
         .values('voucher_number')
         .annotate(
             total_items=Sum('quantity_received'),
-            total_price=Sum('total_price'),
+            total_price=Sum(F('unit_price') * F('quantity_received')),
             date=F('date_received')
         ).order_by('-date')
     )
