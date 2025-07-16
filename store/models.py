@@ -15,11 +15,17 @@ class Vendor(models.Model):
     def __str__(self):
         return self.name
 
+class StockCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class StockItem(models.Model):
     name = models.CharField(max_length=200)
     vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE)
-    # REMOVE this line:
-    # unit = models.CharField(max_length=50)
+    category = models.ForeignKey(StockCategory, on_delete=models.CASCADE, related_name='items')  # ✅ new line
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -28,7 +34,7 @@ class StockItem(models.Model):
     def save(self, *args, **kwargs):
         self.total_price = self.purchase_price * self.quantity
         super().save(*args, **kwargs)
-    
+
     def total_quantity_available(self):
         total_received = self.receipt_set.aggregate(qty=Sum('quantity_received'))['qty'] or 0
         total_issued = self.issue_set.aggregate(qty=Sum('quantity_issued'))['qty'] or 0
@@ -61,5 +67,3 @@ class Receipt(models.Model):
     def save(self, *args, **kwargs):
         self.total_price = self.unit_price * self.quantity_received
         super().save(*args, **kwargs)
-
-
