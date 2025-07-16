@@ -224,21 +224,26 @@ def report_view(request):
         'show_vendor': show_vendor,
         'show_office': show_office,
     })
-    
-@login_required
-def voucher_detail(request, voucher_number):
-    receipts = Receipt.objects.filter(voucher_number=voucher_number)
-    return render(request, 'store/voucher_detail.html', {
-        'voucher_number': voucher_number,
-        'receipts': receipts
-    })
+
+# ---------------- Office Management ----------------
+class OfficeListView(ListView):
+    model = Office
+    template_name = 'store/office_list.html'
+
+class OfficeCreateView(CreateView):
+    model = Office
+    form_class = OfficeForm
+    template_name = 'store/office_form.html'
+    success_url = reverse_lazy('office_list')
 
 @login_required
-def voucher_print(request, voucher_number):
-    receipts = Receipt.objects.filter(voucher_number=voucher_number)
-    template = get_template('store/voucher_print.html')
-    html = template.render({'voucher_number': voucher_number, 'receipts': receipts})
-    buffer = io.BytesIO()
-    pisa.CreatePDF(html, dest=buffer)
-    buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename=f'{voucher_number}.pdf')
+def office_create(request):
+    form = OfficeForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('office_list')
+    return render(request, 'store/office_form.html', {'form': form})
+
+@login_required
+def report_form_view(request):
+    return render(request, 'store/report_form.html')
