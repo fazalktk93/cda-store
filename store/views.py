@@ -337,8 +337,18 @@ def voucher_print(request, voucher_number):
 @login_required
 def office_detail(request, office_id):
     office = get_object_or_404(Office, id=office_id)
-    issues = Issue.objects.filter(office=office).select_related('stock_item').order_by('-date_issued')
-    return render(request, 'store/office_detail.html', {'office': office, 'issues': issues})
+
+    issued_batches = (
+        Issue.objects.filter(office=office)
+        .values('date_issued', 'remarks')
+        .annotate(total_items=Sum('quantity_issued'), date=F('date_issued'))
+        .order_by('-date')
+    )
+
+    return render(request, 'store/office_detail.html', {
+        'office': office,
+        'issued_batches': issued_batches,
+    })
 
 
 @login_required
@@ -359,3 +369,37 @@ def add_office_issue(request, office_id):
         formset = IssueFormSet(queryset=Issue.objects.none())
 
     return render(request, 'store/add_office_issue.html', {'formset': formset, 'office': office})
+
+
+# View: Display issued items for a specific office on a date
+@login_required
+def issue_detail(request, date, office_id):
+    office = get_object_or_404(Office, id=office_id)
+    issues = Issue.objects.filter(office=office, date_issued=date).select_related('stock_item')
+
+    return render(request, 'store/issue_detail.html', {
+        'office': office,
+        'issues': issues,
+        'issue_date': date,
+        'search_mode': request.GET.get("search") == "true"
+    })
+
+# View: Generate PDF of issued items
+@login_required
+def issue_print(request, date, office_id):
+    office = get_object_or_404(Office, id=office_id)
+    issues = Issue.objects.filter(office=office, date_issued=date).select_related('stock_item')
+
+    template_path = 'store/issue_print.html'
+    context = {
+        'office': office,
+        'issues': issues,
+        'issue_date': date,
+    }
+
+    html = get_template(template_path).render(context)
+    response = io.BytesIO()
+    pisa.CreatePDF(html, dest=response)
+    response.seek(0)
+
+    return FileResponse(response, content_type='application/pdf')

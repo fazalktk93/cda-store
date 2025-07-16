@@ -6,30 +6,38 @@
 
 <!-- ➕ Issue Stock Button -->
 <div class="mt-3 mb-3">
-    <a href="{% url 'add_office_issue' office.id %}" class="btn btn-primary">➕ Issue Stock</a>
+    <a href="{% url 'add_office_issue' office.id %}" class="btn btn-primary">➕ Add Issuance</a>
 </div>
 
-<!-- 📦 Issue Summary Table -->
-<h4 class="mt-4">Issued Stock</h4>
+<!-- 📦 Issuance Summary Table -->
+<h4 class="mt-4">Issuance Records</h4>
 <table class="table table-striped table-bordered">
     <thead class="table-light">
         <tr>
             <th>Date</th>
-            <th>Item</th>
-            <th>Quantity</th>
+            <th>Total Items</th>
             <th>Remarks</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for issue in issues %}
+        {% for record in issued_batches %}
         <tr>
-            <td>{{ issue.date_issued }}</td>
-            <td>{{ issue.stock_item.name }}</td>
-            <td>{{ issue.quantity_issued }}</td>
-            <td>{{ issue.remarks }}</td>
+            <td>{{ record.date }}</td>
+            <td>{{ record.total_items }}</td>
+            <td>{{ record.remarks }}</td>
+            <td>
+                {% if record.date %}
+                    <a href="{% url 'issue_detail' record.date office.id %}" class="btn btn-sm btn-info">View</a>
+                    <a href="{% url 'issue_detail' record.date office.id %}?search=true" class="btn btn-sm btn-warning">Search</a>
+                    <a href="{% url 'issue_print' record.date office.id %}" class="btn btn-sm btn-secondary">Print</a>
+                {% else %}
+                    <span class="text-muted">No Issue</span>
+                {% endif %}
+            </td>
         </tr>
         {% empty %}
-        <tr><td colspan="4">No stock issued yet.</td></tr>
+        <tr><td colspan="4">No issuances found.</td></tr>
         {% endfor %}
     </tbody>
 </table>
