@@ -81,9 +81,8 @@ class VendorStockForm(forms.ModelForm):
 class ReceiptForm(forms.ModelForm):
     class Meta:
         model = Receipt
-        fields = ['stock_item', 'purchase_price', 'quantity']
+        fields = ['stock_item', 'unit_price', 'quantity_received']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # 👇 Populate the dropdown
         self.fields['stock_item'].queryset = StockItem.objects.all()
