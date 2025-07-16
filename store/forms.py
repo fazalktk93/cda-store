@@ -1,7 +1,8 @@
 from django import forms
 from .models import Vendor, StockItem, Issue
 from .models import Issue, Office
-from .models import StockCategory
+from .models import StockCategory, Receipt
+from .models import StockItem, Office
 from .models import VendorStock
 
 class VendorForm(forms.ModelForm):
@@ -76,3 +77,13 @@ class VendorStockForm(forms.ModelForm):
 
         # Optional: Add CSS class for styling
         self.fields['name'].widget.attrs.update({'class': 'form-select'})
+        
+class ReceiptForm(forms.ModelForm):
+    class Meta:
+        model = Receipt
+        fields = ['stock_item', 'purchase_price', 'quantity']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 👇 Populate the dropdown
+        self.fields['stock_item'].queryset = StockItem.objects.all()
