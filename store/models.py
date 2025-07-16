@@ -23,7 +23,7 @@ class StockCategory(models.Model):
 
 
 class StockItem(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     vendor = models.ForeignKey('Vendor', on_delete=models.CASCADE)
     category = models.ForeignKey('StockCategory', on_delete=models.CASCADE, null=True, blank=True)  # ✅ re-add this
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
