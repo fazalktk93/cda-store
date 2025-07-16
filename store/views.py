@@ -87,7 +87,7 @@ def vendor_detail(request, vendor_id):
 @login_required
 def add_vendor_stock(request, vendor_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
-    StockFormSet = modelformset_factory(VendorStock, form=VendorStockForm, extra=0, can_delete=True)
+    StockFormSet = modelformset_factory(VendorStock, form=VendorStockForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         formset = StockFormSet(request.POST)
@@ -100,7 +100,6 @@ def add_vendor_stock(request, vendor_id):
                 item.vendor = vendor
                 item.save()
 
-                # Save to receipt
                 Receipt.objects.create(
                     stock_item=item.stock_item,
                     quantity_received=item.quantity,
@@ -109,6 +108,8 @@ def add_vendor_stock(request, vendor_id):
                     voucher_number=voucher_number
                 )
             return redirect('vendor_detail', vendor_id=vendor.id)
+        else:
+            print("Formset errors:", formset.errors)
     else:
         formset = StockFormSet(queryset=VendorStock.objects.none())
 
